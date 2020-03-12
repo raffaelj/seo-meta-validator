@@ -1,0 +1,18 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>SEO Meta Validator</title>
+    <link rel="stylesheet" type="text/css" href="dist/metavalidator.min.css" id="metavalidator-style" />
+</head>
+<body>
+
+    <h1>SEO Meta Validator</h1>
+    <p>Enter a url, select a preset and click the button to run the tests. It works well on localhost, but the requests fail for external urls (CORS).</p>
+
+    <script src="dist/metavalidator.min.js" id="metavalidator-script"></script>
+    <script>
+        MetaValidator.run('/example.html');
+    </script>
+</body>
+</html>

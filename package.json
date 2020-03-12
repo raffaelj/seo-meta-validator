@@ -1,0 +1,29 @@
+{
+    "name": "seo-meta-validator",
+    "version": "0.1.0",
+    "author": "Raffael Jesche",
+    "license": "MIT",
+    "description": "Validate structured data like jsonld of html documents - work in progress",
+    "main": "index.js",
+    "scripts": {
+        "build": "npm run build:js && npm run build:sass",
+        "watch": "concurrently \"npm:watch:*\" -k -r",
+        "build:js": "browserify src/js/index.js -s MetaValidator | terser > dist/metavalidator.min.js",
+        "watch:js": "npm run build:js && onchange \"src/js/*.js\" -- npm run build:js",
+        "build:bookmarklet": "node scripts/build-bookmarklet.js",
+        "build:sass": "node-sass -r --output-style compressed src/css/style.scss dist/metavalidator.min.css",
+        "watch:sass": "npm run build:sass && npm run build:sass -- -w"
+    },
+    "devDependencies": {
+        "browserify": "^16.5.0",
+        "concurrently": "^5.1.0",
+        "jmespath": "^0.15.0",
+        "jsdom": "^16.2.1",
+        "node-fetch": "^2.6.0",
+        "node-sass": "^4.13.1",
+        "onchange": "^6.1.0",
+        "structured-data-testing-tool": "^4.4.1",
+        "terser": "^4.6.6",
+        "yargs": "^15.1.0"
+    }
+}
