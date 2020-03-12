@@ -22,7 +22,7 @@
         "node-fetch": "^2.6.0",
         "node-sass": "^4.13.1",
         "onchange": "^6.1.0",
-        "structured-data-testing-tool": "^4.4.1",
+        "structured-data-testing-tool": "^4.5.0",
         "terser": "^4.6.6",
         "yargs": "^15.1.0"
     }
