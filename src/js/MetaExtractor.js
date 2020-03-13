@@ -25,7 +25,8 @@ module.exports = {
             metatags:  this.metatagParser(),
             microdata: this.microRdfaParser(null, 'microdata'),
             rdfa:      this.microRdfaParser(null, 'rdfa'),
-            jsonld:    this.jsonldParser()
+            jsonld:    this.jsonldParser(),
+            htmltags:  this.htmltagParser() // experimental
         };
 
     },
@@ -55,6 +56,26 @@ module.exports = {
         });
 
         return metaTags;
+
+    },
+
+    htmltagParser: function (html) {
+
+        html = html || this.html;
+
+        var htmlTags = {},
+            _htmlTags = html.querySelectorAll('title, h1');
+
+        _htmlTags.forEach(item => {
+
+            if (!htmlTags[item.localName]) {
+                htmlTags[item.localName] = [];
+            }
+            htmlTags[item.localName].push(item.innerText);
+
+        });
+
+        return htmlTags;
 
     },
 
