@@ -9,7 +9,9 @@
         "build": "npm run build:js && npm run build:sass",
         "watch": "concurrently \"npm:watch:*\" -k -r",
         "build:js": "browserify src/js/index.js -s MetaValidator | terser > dist/metavalidator.min.js",
-        "watch:js": "npm run build:js && onchange \"src/js/*.js\" -- npm run build:js",
+        "watch:js": "npm run build:js && onchange \"src/js/*.js\" \"src/js/presets/*.js\" -- npm run build:js",
+        "build:js:dev": "browserify src/js/index.js -s MetaValidator -o dist/metavalidator.min.js",
+        "watch:js:dev": "npm run build:js:dev && onchange \"src/js/*.js\" \"src/js/presets/*.js\" -- npm run build:js:dev",
         "build:bookmarklet": "node scripts/build-bookmarklet.js",
         "build:sass": "node-sass -r --output-style compressed src/css/style.scss dist/metavalidator.min.css",
         "watch:sass": "npm run build:sass && npm run build:sass -- -w"
