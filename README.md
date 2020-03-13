@@ -4,7 +4,7 @@
 
 I need a html test suite and I wasn't able to find a good one (without relying on third party services), so I rewrote [npm/structured-data-testing-tool][4] and [npm/web-auto-extractor][5] to a less resource hungry package, that also works in a web browser.
 
-It is basically a rewrite of the structured-data-testing-tool by Iain Collins and it isn't fully implemented, yet.
+It is basically a rewrite of the [structured-data-testing-tool][1] by Iain Collins and it isn't fully implemented, yet.
 
 ## Goals
 
@@ -52,6 +52,7 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
 ## Build
 
 * `npm run build` and `npm run watch` to rebuild js an css files
+* `npm run build:js:dev` and `npm run watch:js:dev` to rebuild js files without minifying (for debugging)
 * `npm run build:bookmarklet` ...
 * see `package.json` for more build scripts
 
@@ -59,7 +60,7 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
 
 ### meta
 
-* [ ] How to deal with mixed licensed content (ISC, MIT)?
+* [ ] How to deal with mixed licensed content? I publish everything under MIT, sdtt is ISC licensed and the browserified jmespath is Apache 2.0 licensed.
 * [ ] collaboration or new project?
   * collaborate with Iain Collins and merge my rewrite to his tool or
   * create my own project
@@ -78,6 +79,8 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
 * [ ] performance tests/optimization
 * [ ] catch error if url is not parsable
 * [ ] self tests
+* [ ] single tests should have conditionals (currently only presets have conditionals)
+* [ ] presets should have multiple conditionals (currently only one conditional test is possible) - some data has multiple fallbacks, e.g. if no `twitter:title` is present, Twitter will fallback to `og:title`
 
 ### mini browser ui
 
@@ -105,12 +108,15 @@ See [LICENSE](LICENSE) for more information.
 
 ## Credits and third party resources
 
-A lot of the code is copied and modified from [structured-data-testing-tool][1], (c) Iain Collins, ISC License.
-The parsers are rewritten variants from [web-auto-extractor][2], (c) Dayan Adeeb, MIT License.
-Some internal js helpers are from [Cockpit CMS (App.js)][3], (c) Artur Heinze, MIT License
+* A lot of the code is copied and modified from [structured-data-testing-tool][1], (c) Iain Collins, ISC License.
+* The parsers are rewritten variants from [web-auto-extractor][2], (c) Dayan Adeeb, MIT License.
+* Some internal js helpers are from [Cockpit CMS (App.js)][3], (c) Artur Heinze, MIT License
+* The built script for browser usage contains the browserified [jmespath][6], (c) James Saryerwinnie, [Apache 2.0 License][7]
 
 [1]: https://github.com/glitchdigital/structured-data-testing-tool
 [2]: https://github.com/indix/web-auto-extractor
 [3]: https://github.com/agentejo/cockpit/
 [4]: https://www.npmjs.com/package/structured-data-testing-tool
 [5]: https://www.npmjs.com/package/web-auto-extractor
+[6]: https://github.com/jmespath/jmespath.js
+[7]: https://raw.githubusercontent.com/jmespath/jmespath.js/master/LICENSE

@@ -1,16 +1,24 @@
 
 const jmespath          = require('jmespath');
-const schemaDefinitions = require('structured-data-testing-tool/schemas.json');
-const defaultPresets    = require('structured-data-testing-tool/presets.js');
 
+// to do: move entry points, browser should have the whole json included, cli should use fs
+const schemaDefinitions = require('structured-data-testing-tool/schemas.json');
+
+const presets       = require('./presets.js');
 var   App           = require('./App.js');
 const HTMLParser    = require('./HTMLParser.js');
 const MetaExtractor = require('./MetaExtractor.js');
 
+const defaultPresets = Object.assign({
+    Default: {name: 'Default', presets: ['SEO', 'Google']}
+}, presets)
+
 Object.assign(App, {
 
+    // defaults to current url if window object exists (for bookmarklet usage)
     url: typeof window != 'undefined' && window.location ? window.location.toString() : '',
 
+    // has no effect yet
     usage: typeof window != 'undefined' ? 'browser' : 'cli',
 
     HTMLParser:        HTMLParser,
@@ -19,9 +27,7 @@ Object.assign(App, {
 
     schemaDefinitions: schemaDefinitions,
 
-    defaultPresets:    Object.assign({
-        Default: {name: 'Default', presets: ['Google']} // to do: SEO preset
-    }, defaultPresets),
+    defaultPresets:    defaultPresets,
 
     data:    {},
     tests:   [],
@@ -33,7 +39,7 @@ Object.assign(App, {
         failed:   [],
         warnings: [],
         optional: [],
-        skipped:  [],
+        skipped:  [], // to do...
     },
 
     init: function(options) {
@@ -142,10 +148,13 @@ Object.assign(App, {
         var result;
 
         switch (test.type) {
-            case 'metatag':   result = this.validate(test, data.metatags); break;
+            case 'metatag':
+            case 'metatags':  result = this.validate(test, data.metatags); break;
             case 'jsonld':    result = this.validate(test, data.jsonld); break;
             case 'microdata': result = this.validate(test, data.microdata); break;
             case 'rdfa':      result = this.validate(test, data.rdfa); break;
+            case 'htmltag':
+            case 'htmltags':  result = this.validate(test, data.htmltags); break;
             case 'any':       result = this.validateAny(test, data); break;
         }
 
@@ -262,6 +271,7 @@ console.log('end of expect and still no error returned', value, test);
 
         if (!result) {
             this.response.failed.push(test);
+            return;
         }
 
         if (result.success) {
@@ -427,7 +437,7 @@ console.log(schemaType);
                                     skipTest = this.runSingleTest(preset.conditional);
                                 }
 
-                                if (!skipTest) {
+                                if (!skipTest || !skipTest.error) {
 
                                     this.data[dataType][schemaName].forEach((instance, i) => {
 
@@ -461,14 +471,15 @@ console.log(schemaType);
 
                 else {
 
-                    if (preset.hasOwnProperty('conditional')) {
+                    if (preset.conditional) {
 
-                        var result = this.runSingleTest(preset.conditional);
-                        if (result) {
+                        var skipTest = this.runSingleTest(preset.conditional);
+
+                        if (!skipTest || !skipTest.error) {
 
                             preset.tests.forEach(test => {
 
-                                test.group = preset.name;
+                                test.group = preset.group || preset.name;
                                 this.tests.push(test);
 
                             });
@@ -478,7 +489,7 @@ console.log(schemaType);
                     else {
                         preset.tests.forEach(test => {
 
-                            test.group = preset.name;
+                            test.group = preset.group || preset.name;
                             this.tests.push(test);
 
                         });
