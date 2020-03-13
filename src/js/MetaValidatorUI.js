@@ -96,17 +96,28 @@ module.exports = function() {
         presetFieldset.appendChild(document.createTextNode('Presets: '));
         Object.keys(this.defaultPresets).forEach(preset => {
 
-            var name      = this.defaultPresets[preset].name;
-            var checkbox  = document.createElement('input');
-            checkbox.type = 'checkbox';
-            checkbox.name = `presets[]`;
-            checkbox.value = name;
-            checkbox.id   = 'metavalidator-preset-' + name;
+            var name         = this.defaultPresets[preset].name;
+            var checkbox     = document.createElement('input');
+            checkbox.type    = 'checkbox';
+            checkbox.name    = `presets[]`;
+            checkbox.value   = name;
+            checkbox.id      = 'metavalidator-preset-' + name;
             checkbox.checked = selected.indexOf(name) != -1;
 
             var label    = document.createElement('label');
             label.setAttribute('for', 'metavalidator-preset-' + name);
             label.innerText = name;
+            
+            // set title with containing presets
+            if (this.defaultPresets[preset].presets) {
+
+                var labelTitle = [];
+                this.defaultPresets[preset].presets.forEach(p => {
+                    labelTitle.push(typeof p == 'string' ? p : p.name);
+                });
+                label.title = labelTitle.join(', ');
+            }
+
             presetFieldset.appendChild(checkbox);
             presetFieldset.appendChild(label);
 
