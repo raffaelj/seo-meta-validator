@@ -69,48 +69,19 @@ Object.assign(App, {
 
     },
 
-    run: function(url, options) {
+    run: async function(url, options) {
 
         url = url || this.url;
 
         this.url = url;
 
-        var $this = this;
-
         this.init(options);
 
-        // if (this.usage == 'browser') {
-            // this.request(url, null, 'html').then(function(html) {
-                // $this.runExtractor();
-            // });
-        // }
-        // else if (this.usage == 'cli') {
-            
-        // }
-        
-        this.fetchUrl(url);
-
-    },
-
-    // replace this method when running from cli
-    fetchUrl: function(url) {
-
-        var $this = this;
-
-        this.request(url, null, 'html').then(function(html) {
-            $this.runExtractor(html);
-        });
-
-    },
-
-    runExtractor: function(html) {
+        var html = await this.fetchUrl(url, null, 'html');
 
         this.MetaExtractor.html = this.HTMLParser.parse(html);
 
         this.data = this.MetaExtractor.extract();
-
-        // Not needed anymore ???
-        // data = $this.fixWhiteSpacedMicroData(data);
 
         this.addMetaTagsToTests(); // useless ??? - only a self test on existing data
         this.addSchemasToTests(); // useless ??? - only a self test on existing data
@@ -119,6 +90,19 @@ Object.assign(App, {
         this.runTests();
 
         this.trigger('finished');
+
+    },
+
+    /**
+     * Fetch Url and return html string
+     * --> replace this method when running from cli
+     *
+     * @param   String  url
+     * @return  String
+     */
+    fetchUrl: async function(url) {
+
+        return await this.request(url, null, 'html');
 
     },
 
@@ -542,32 +526,6 @@ console.log(schemaType);
         };
 
     },
-
-/* 
-    // https://github.com/glitchdigital/structured-data-testing-tool/issues/4
-    fixWhiteSpacedMicroData: function(data) {
-        
-        // not needed anymore ??? --> should be fixed in parser
-
-        if (!data.microdata || typeof data.microdata != 'object') return data;
-
-        let result = data;
-        Object.keys(result.microdata).forEach(schema => {
-            result.microdata[schema].forEach(object => {
-                Object.keys(object).forEach(key => {
-                    if (key.includes(' ')) {
-                        key.split(' ').forEach(newKey => {
-                            object[newKey] = object[key]
-                        });
-                        delete object[key]
-                    }
-                });
-            });
-        });
-        return result;
-
-    },
- */
 
 });
 

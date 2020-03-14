@@ -195,7 +195,7 @@ module.exports = function() {
 
         if (total) {
             output += '<div>';
-            output += `<p><b>${name}</b> - ${percentPassed}% (${group.passed.length} passed, ${group.failed.length} failed, </p>`;
+            output += `<p><b>${name}</b> - ${percentPassed}% (${group.passed.length} passed, ${group.failed.length} failed)</p>`;
 
             ['passed', 'failed', 'warnings'].forEach(responseType => {
                 output += `<ul>`;

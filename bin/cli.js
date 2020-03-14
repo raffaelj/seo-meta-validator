@@ -22,7 +22,7 @@ MetaValidator.fetchUrl = async function(url, options) {
     const res  = await fetch(url);
     const html = await res.text();
 
-    this.runExtractor(html);
+    return html;
 };
 
 // replace DOMParser with jsdom
