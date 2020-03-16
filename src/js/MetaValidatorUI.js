@@ -5,6 +5,12 @@ module.exports = function() {
 
     // MetaValidator instance
     var $this = this;
+    
+    // helper function to replace `"` with &quot;
+    function quote(str) {
+        if (!str) return '';
+        return str.replace(/"/g, '&quot;');
+    }
 
     var script      = document.getElementById('metavalidator-script'),
         instanceUrl = script.src.replace(/\/metavalidator.min.js/, '');
@@ -66,14 +72,15 @@ module.exports = function() {
             if (e) e.preventDefault();
 
             var url = '',
-                options = {presets:[]},
+                options = {presets:[], autodetect: false},
                 data = new FormData(form);
 
             var entries = data.entries(), entry = entries.next();
             while (!entry.done) {
 
-                if (entry.value[0] == 'url') url = entry.value[1];
-                if (entry.value[0] == 'presets[]') options.presets.push(entry.value[1]);
+                if (entry.value[0] == 'url')        url = entry.value[1];
+                if (entry.value[0] == 'autodetect') options.autodetect = true;
+                if (entry.value[0] == 'presets[]')  options.presets.push(entry.value[1]);
 
                 entry = entries.next();
             }
@@ -91,9 +98,31 @@ module.exports = function() {
         }
 
         var selected = Object.keys(this.presets).map(e => {return this.presets[e].name});
+        
+        var checkbox     = document.createElement('input');
+        checkbox.type    = 'checkbox';
+        checkbox.name    = `autodetect`;
+        checkbox.id      = 'metavalidator-autodetect';
+        checkbox.value   = 1;
+        checkbox.checked = this.autodetect;
+        
+        var label    = document.createElement('label');
+        label.setAttribute('for', 'metavalidator-autodetect');
+        label.innerText = 'Autodetect';
+        
+        form.appendChild(checkbox);
+        form.appendChild(label);
+
+        var submitButton = document.createElement('button');
+        submitButton.setAttribute('type', 'submit');
+        submitButton.innerText = 'Run test';
+
+        form.appendChild(submitButton);
 
         var presetFieldset = document.createElement('fieldset');
+        
         presetFieldset.appendChild(document.createTextNode('Presets: '));
+        
         Object.keys(this.defaultPresets).forEach(preset => {
 
             var name         = this.defaultPresets[preset].name;
@@ -123,12 +152,7 @@ module.exports = function() {
 
         });
 
-        var submitButton = document.createElement('button');
-        submitButton.setAttribute('type', 'submit');
-        submitButton.innerText = 'Run test';
-
         form.appendChild(presetFieldset);
-        form.appendChild(submitButton);
 
         container.appendChild(form);
     }
@@ -171,19 +195,21 @@ module.exports = function() {
 
 
     output += '<div>';
+    // output += `<p><b>Url:</b> ${this.url}</p>`;
+    output += '<table>';
 
-    output += `<p><b>Url:</b> ${this.url}</p>`;
-    output += '<p>Number of Tests: '    + (response.tests.length) + '</p>';
-    output += '<p>Number of Metatags: ' + (Object.keys(this.data.metatags).length || 0) + '</p>';
-    output += '<p>Schemas in JSON-LD: ' + (Object.keys(this.data.jsonld).length || 0) + '</p>';
+    output += '<tr><th>Number of Tests:</th><td>'    + (response.tests.length) + '</td></tr>';
+    output += '<tr><th>Number of Metatags:</th><td>' + (Object.keys(this.data.metatags).length || 0) + '</td></tr>';
+    output += '<tr><th>Schemas in JSON-LD:</th><td>' + (Object.keys(this.data.jsonld).length || 0) + '</td></tr>';
+    output += '<tr><th>Optional tests:</th><td>'     + response.optional.length + '</td></tr>';
     // ...
 
 
-    output += '<p>Passed: '   + (Math.floor((response.passed.length / totalTests) * 100) || 0) + '%</p>';
-    output += '<p>Warnings: ' + (Math.floor((response.warnings.length / totalTests) * 100) || 0) + '%</p>';
-    output += '<p>Failed: '   + (Math.floor((response.failed.length / totalTests) * 100) || 0) + '%</p>';
-    output += '<p>Optional: ' + response.optional.length + '</p>';
+    output += '<tr><th>Passed:</th><td>'   + (Math.floor((response.passed.length / totalTests) * 100) || 0) + '%</td></tr>';
+    output += '<tr><th>Warnings:</th><td>' + (Math.floor((response.warnings.length / totalTests) * 100) || 0) + '%</td></tr>';
+    output += '<tr><th>Failed:</th><td>'   + (Math.floor((response.failed.length / totalTests) * 100) || 0) + '%</td></tr>';
 
+    output += '</table>';
     output += '</div>';
 
 
@@ -197,12 +223,18 @@ module.exports = function() {
             output += '<div>';
             output += `<p><b>${name}</b> - ${percentPassed}% (${group.passed.length} passed, ${group.failed.length} failed)</p>`;
 
-            ['passed', 'failed', 'warnings'].forEach(responseType => {
+            ['passed', 'failed', 'warnings', 'optional'].forEach(responseType => {
                 output += `<ul>`;
 
                 response[responseType].forEach(test => {
                     if ((test.group == name) || (!test.group && name == 'ungrouped')) {
-                        output += `<li class="metavalidator-${responseType}">${test.description || test.test}</li>`;
+                        output += `<li class="metavalidator-${responseType}" title="${quote(test.test)}">${test.description || test.test}`;
+
+                        if (test.error) {
+                            output += `<b class="info" title="${quote(test.error.message || test.error.type)}"> (i)</b>`;
+                        }
+
+                        output += `</li>`;
                     }
 
                 });

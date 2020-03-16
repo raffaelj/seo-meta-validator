@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <title>SEO Meta Validator</title>
     <link rel="stylesheet" type="text/css" href="dist/metavalidator.min.css" id="metavalidator-style" />
+    <style>
+        html {
+            font-family: system-ui, Helvetica, sans-serif;
+        }
+    </style>
 </head>
 <body>
 
@@ -12,7 +17,13 @@
 
     <script src="dist/metavalidator.min.js" id="metavalidator-script"></script>
     <script>
-        MetaValidator.run('/example.html');
+        var url = '/example.html';
+        // var url = 'http://localhost/CpMultiplane/de';
+        
+        var options = {
+            autodetect: true,
+        };
+        MetaValidator.run(url, options);
     </script>
 </body>
 </html>
