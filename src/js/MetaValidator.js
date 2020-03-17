@@ -1,8 +1,12 @@
 
 const jmespath          = require('jmespath');
+// const validator         = require('validator');
+const validator         = require('validator/validator.min.js');
 
+// load subsets of the schema files, that are distributed for browser usage
 // to do: move entry points, browser should have the whole json included, cli should use fs
-const schemaDefinitions = require('structured-data-testing-tool/schemas.json');
+const schemaOrgDefinitions = require('./schemas/common_schemas.json');
+const schemaOrgProperties  = require('./schemas/common_properties.json');
 
 const presets       = require('./presets.js');
 var   App           = require('./App.js');
@@ -18,21 +22,29 @@ Object.assign(App, {
     // defaults to current url if window object exists (for bookmarklet usage)
     url: typeof window != 'undefined' && window.location ? window.location.toString() : '',
 
+    // load missing schema.org definitions on run time
+    schemaOrgApiUrl: '',
+
     // has no effect yet
     usage: typeof window != 'undefined' ? 'browser' : 'cli',
 
     HTMLParser:        HTMLParser,
     MetaExtractor:     MetaExtractor,
     schemaValidator:   jmespath,
+    validator:         validator,
 
-    schemaDefinitions: schemaDefinitions,
+    schemaOrgDefinitions: schemaOrgDefinitions,
+    schemaOrgProperties:  schemaOrgProperties,
 
     defaultPresets:    defaultPresets,
 
     data:    {},
+
     tests:   [],
     presets: [],
     schemas: [],
+
+    autodetect: false,
 
     response: {
         passed:   [],
@@ -53,7 +65,9 @@ Object.assign(App, {
         // * display info
         // * ...
 
-        if (options) {
+        if (options && typeof options == 'object') {
+
+            this.autodetect = options.autodetect || false;
 
             if (options.tests && Array.isArray(options.tests)) {
                 this.tests = this.tests.concat(options.tests);
@@ -63,9 +77,17 @@ Object.assign(App, {
                 this.presets = this.presets.concat(options.presets);
             }
 
+            if (options.schemas && Array.isArray(options.schemas)) {
+                this.schemas = this.schemas.concat(options.schemas);
+            }
+
         }
 
-        if (!this.presets.length) this.presets.push(this.defaultPresets.Default);
+        if (!this.autodetect && !this.tests.length
+          && !this.presets.length && !this.schemas.length) {
+
+            this.presets.push(this.defaultPresets.Default);
+        }
 
     },
 
@@ -77,15 +99,20 @@ Object.assign(App, {
 
         this.init(options);
 
-        var html = await this.fetchUrl(url, null, 'html');
+        var html = options && options.html ? options.html
+                   : await this.fetchUrl(url, null, 'html');
 
         this.MetaExtractor.html = this.HTMLParser.parse(html);
 
         this.data = this.MetaExtractor.extract();
 
-        this.addMetaTagsToTests(); // useless ??? - only a self test on existing data
-        this.addSchemasToTests(); // useless ??? - only a self test on existing data
+        if (this.autodetect) {
+            this.addAutoDetectedTests();
+        }
+
         this.addPresetsToTests();
+
+        await this.addSchemasToTests(); // useless ??? - only a self test on existing data
 
         this.runTests();
 
@@ -153,6 +180,42 @@ Object.assign(App, {
         var error,
             path  = test.test,
             value = this.schemaValidator.search(json, path);
+
+        if (test.schema && test.property) {
+
+            // compare allowed properties
+            if (this.schemaOrgDefinitions[test.schema].properties
+              && Array.isArray(this.schemaOrgDefinitions[test.schema].properties)) {
+
+                var isPropertyAllowed = this.schemaOrgDefinitions[test.schema].properties.includes(test.property);
+ 
+                if (!isPropertyAllowed) {
+                    error = {
+                        type: 'PROPERTY_NOT_ALLOWED',
+                        message: 'Property is not allowed in schema'
+                    };
+                }
+
+            }
+
+        }
+
+        if (test.schema && test.range) {
+
+            // returns null if no schema content type validator found
+            // returns true/false if the content type validation passes/fails
+            rangeValidation = this.validateSchemaOrgRange(value, test);
+
+// console.log(rangeValidation, value, test.type, test.schema, test.range);
+
+            if (rangeValidation === false) {
+                error = {
+                    type: 'INVALID_SCHEMA_PROPERTY',
+                    message: 'Content type is not allowed in schema property'
+                }
+            }
+
+        }
 
         if (test.hasOwnProperty('expect')) {
             error = this.compareWithExpectedValue(value, test);
@@ -265,23 +328,47 @@ console.log('end of expect and still no error returned', value, test);
         } else if (result.error) {
 
             if (test.optional) {
-                this.response.optional.push(test);
+                // this.response.optional.push(test);
+                this.response.optional.push(Object.assign(result,test));
             }
             else if (test.warning) {
-                this.response.warnings.push(test);
+                // this.response.warnings.push(test);
+                this.response.warnings.push(Object.assign(result,test));
             }
             else {
-                this.response.failed.push(test);
+                // this.response.failed.push(test);
+                this.response.failed.push(Object.assign(result,test));
             }
 
         }
 
     },
 
+    addAutoDetectedTests: function (data) {
+
+        data = data || this.data;
+
+        // disabled for debugging
+        this.addMetaTagsToTests();
+
+        var schemas = [];
+
+        // auto detect schemas --> useless without validation
+        ['rdfa', 'microdata', 'jsonld'].forEach(type => {
+            Object.keys(data[type]).map(schema => {
+                if (schema !== 'undefined' && !schemas.includes(schema)) {
+                    schemas.push(`${type}:${schema}`);
+                }
+            });
+        });
+
+        this.schemas = this.schemas.concat(schemas);
+
+    },
+
     addMetaTagsToTests: function(data) {
 
-        // seems a bit useless, too...
-return;
+        // seems to be useless - only a self test on existing data
 
         data = data || this.data;
 
@@ -298,36 +385,26 @@ return;
                     type: 'metatag',
                     group: 'Metatags',
                     description: tag,
-                    optional: true
+                    optional: true,
+                    autoDetected: true
                 });
             });
         }
 
     },
 
-    addSchemasToTests: function(data) {
+    addSchemasToTests: async function(data, schemas, opts = {}) {
 
-        data = data || this.data;
-/* 
-        var schemas = [];
+        // recursive
 
-        // auto detect schemas --> useless without validation
-        ['rdfa', 'microdata', 'jsonld'].forEach(type => {
-            Object.keys(data[type]).map(schema => {
-                if (schema !== 'undefined' && !schemas.includes(schema)) {
-                    schemas.push(`${type}:${schema}`);
-                }
-            });
-        });
+        data    = data    || this.data;
+        schemas = schemas || this.schemas;
 
-        this.schemas = this.schemas.concat(schemas);
- */
         // add schemas to tests
-        this.schemas.forEach((schema) => {
+        for (schema of schemas) {
 
             var type,
                 name = schema,
-                index = 0, // to do...
                 groups = ['Schema.org']; // to do ...
 
             if (name.indexOf(':') != -1) {
@@ -336,18 +413,142 @@ return;
                 name = split[1];
             }
 
-            this.tests.push({
-                test: `${name}[${index}]`, // to do: multiple instances...
-                schema: name,
-                type: type || 'any',
-                group: name,
-                groups: groups,
-                description: type ? `schema in ${type}` : `schema found`
-            });
+            var prop = opts.prop || name;
 
-            if (type && this.schemaDefinitions.hasOwnProperty(name)) {
+            if (type) {
 
-                this.addSchemaPropertiesToTests(name, type, schema, index);
+                var schemaDefinition = await this.getSchemaOrgSchema(name);
+
+                if (schemaDefinition && data[type][prop]) {
+
+                    if (Array.isArray(data[type][prop])) {
+                        data[type][prop].map(async (dataSet, index) => {
+
+                            var group = opts.group || `${name} #${index}`;
+                            
+                            this.tests.push({
+                                type:   type,
+                                schema: name,
+                                test:   (opts.parent ? `${opts.parent}.` : '') + `${prop}[${index}]`,
+                                group: group,
+                                groups: groups,
+                                description:  type ? `schema in ${type}` : `schema found`,
+                                autoDetected: true
+                            });
+
+                            var options = {
+                                type:       type,
+                                schemaName: name,
+                                index:      index,
+                                group:      group,
+                                parent:     `${name}[${index}]`
+                            };
+                            
+                            if (opts.parent) {
+                                options.parent = `${opts.parent}.${options.parent}`;
+                            }
+                            
+                            await this.addSchemaPropertiesToTests(dataSet, options);
+
+                        });
+                    }
+
+                    else if (typeof data[type][prop] == 'object') {
+
+                        var index = 0;
+                        var group = opts.group || `${name} #${index}`;
+                        var options = {
+                            type:       type,
+                            schemaName: name,
+                            index:      index,
+                            group:      group,
+                            parent:     `${prop}`
+                        };
+
+                        if (opts.parent) {
+                            options.parent = `${opts.parent}.${options.parent}`;
+                        }
+
+                        await this.addSchemaPropertiesToTests(data[type][prop], options);
+
+                    }
+
+                }
+
+            }
+
+        };
+
+    },
+
+    addSchemaPropertiesToTests: async function (dataSet, options) {
+
+        // recursive
+
+        // add auto detected tests for schema.org properties
+        // checks, if property is allowed in schema
+        // doesn't check, if property has valid contents
+
+        var type       = options.type,
+            schemaName = options.schemaName,
+            index      = options.index,
+            group      = options.group,
+            parent     = options.parent;
+
+        Object.keys(dataSet).map(async prop => {
+
+            if (prop && prop != 'undefined' && prop != '@type' && prop != '@context') {
+
+                if (typeof dataSet[prop] == 'string') {
+
+                    var description = parent.split('.');
+                    description.shift()
+                    description = description.join('.');
+                    description = description + (description.length ? '.' : '')  + prop;
+
+                    var test = {
+                        type:     type,
+                        schema:   schemaName,
+                        test:     `${parent}.\"${prop}\"`,
+                        group:    group,
+                        property: prop,
+                        description: description,
+                        autoDetected: true,
+                    }
+
+                    var propertyDefinition = await this.getSchemaOrgProperty(prop);
+
+                    if (propertyDefinition && propertyDefinition.rangeIncludes
+                      && Array.isArray(propertyDefinition.rangeIncludes)) {
+
+                        test.range = propertyDefinition.rangeIncludes;
+
+                    }
+
+                    this.tests.push(test);
+
+                }
+
+                else if (typeof dataSet[prop] == 'object') {
+
+                    var childSchema = `${type}:${dataSet[prop]['@type']}`;
+
+                    var childData = {
+                        [type]: {
+                            [prop]: dataSet[prop]
+                        }
+                    };
+
+                    var opts = {
+                        parentPrefix: `${schemaName}[${index}].`,
+                        prop: prop,
+                        parent: parent,
+                        group: group,
+                    };
+
+                    await this.addSchemasToTests(childData, [childSchema], opts);
+
+                }
 
             }
 
@@ -355,32 +556,7 @@ return;
 
     },
 
-    addSchemaPropertiesToTests(name, type, schema, index) {
-
-        // adding the tests from core structured-data-testing-tool is useless
-        // it has no effect, other than checking existence against existing data
-        // a real validation would be useful, but there is only a comment
-        // "@TODO Add test to check if prop contents is valid"
-// return;
-
-        if (this.data[type].hasOwnProperty(name)) {
-
-console.log(this.data[type][name]);
-
-            this.data[type][name].forEach(prop => {
-
-                if (prop.hasOwnProperty('@type')) {
-                    var schemaType = prop['@type'];
-console.log(schemaType);
-                }
-
-            });
-
-        }
-
-    },
-
-    addPresetsToTests(presets) {
+    addPresetsToTests: function (presets) {
 
         presets = presets || this.presets;
 
@@ -493,7 +669,7 @@ console.log(schemaType);
 
     },
 
-    flush() {
+    flush: function () {
 
         this.data =    {};
         this.tests =   [];
@@ -510,7 +686,7 @@ console.log(schemaType);
 
     },
 
-    getResponse() {
+    getResponse: function () {
 
         return {
             tests: this.tests,
@@ -524,6 +700,69 @@ console.log(schemaType);
             data: this.data,
             options: {},
         };
+
+    },
+
+    // to do: replace this method for cli usage
+    getSchemaOrgSchema: async function (schemaName, options) {
+
+        if (this.schemaOrgDefinitions[schemaName]) {
+            return this.schemaOrgDefinitions[schemaName];
+        }
+
+        var url = this.schemaOrgApiUrl + '/schema/' + schemaName;
+
+        var response = await this.request(url);
+
+        if (!response.error) {
+            this.schemaOrgDefinitions[schemaName] = response;
+            return response;
+        }
+
+        return false;
+
+    },
+
+    // to do: replace this method for cli usage
+    getSchemaOrgProperty: async function (propertyName, options) {
+
+        if (this.schemaOrgProperties[propertyName]) {
+            return this.schemaOrgProperties[propertyName];
+        }
+
+        var url = this.schemaOrgApiUrl + '/property/' + propertyName;
+
+        var response = await this.request(url);
+
+        if (!response.error) {
+            this.schemaOrgProperties[propertyName] = response;
+            return response;
+        }
+
+        return false;
+
+    },
+
+    validateSchemaOrgRange: function (value, test) {
+
+        var rangeTestExists = true;
+
+        var testPassed = test.range.some(range => {
+
+            switch (range) {
+                case 'URL':         return this.validator.isURL(value);           break;
+                case 'Date':        // to do: different checks!!!
+                case 'DateTime':    return this.validator.isISO8601(value);       break;
+                case 'Text':        return typeof value === 'string';             break;
+            }
+
+            rangeTestExists = false;
+
+            return false;
+
+        });
+
+        return testPassed ? testPassed : (!rangeTestExists ? null : false);
 
     },
 

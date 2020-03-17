@@ -13,17 +13,23 @@
 <body>
 
     <h1>SEO Meta Validator</h1>
+
     <p>Enter a url, select a preset and click the button to run the tests. It works well on localhost, but the requests fail for external urls (CORS).</p>
 
     <script src="dist/metavalidator.min.js" id="metavalidator-script"></script>
     <script>
+
         var url = '/example.html';
         // var url = 'http://localhost/CpMultiplane/de';
-        
+
         var options = {
             autodetect: true,
         };
+
+        MetaValidator.schemaOrgApiUrl = 'http://localhost/seo-meta-validator/ui/api';
+
         MetaValidator.run(url, options);
+
     </script>
 </body>
 </html>
