@@ -4,3 +4,15 @@
 .sass-cache
 node_modules
 package-lock.json
+
+# Cockpit files
+!.gitignore
+!.gitkeep
+!/storage/*/index.html
+!/storage/*/.htaccess
+
+## don't redistribute Cockpit CMS to keep the repo small
+ui/lib/cockpit
+
+## don't track the memory db file (it gets updated very often with user run time data) 
+ui/cpdata/storage/data/cockpit.memory.sqlite

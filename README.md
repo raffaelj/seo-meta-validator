@@ -35,6 +35,12 @@ Save this repo in `/path/to/xampp/htdocs/seo-meta-validator`, run Apache and ope
 
 It works for testing websites on localhost, but not with external urls due to CORS.
 
+If you want to use the rest api to load missing schema definitions on runtime, you have to install Cockpit CMS manually. I don't want to redistribute the whole thing (>10MB) with this repo. Navigate in your shell to `/path/to/seo-meta-validator` and clone Cockpit with
+
+`git clone https://github.com/agentejo/cockpit.git ui/lib/cockpit`
+
+or download [Cockpit CMS][3] and unzip it into `/path/to/seo-meta-validator/ui/lib/cockpit`.
+
 ### browser bookmarklet
 
 Create a browser bookmark and copy the content from `dist/bookmarklet.js` in the location field.
