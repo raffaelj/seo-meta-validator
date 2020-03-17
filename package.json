@@ -7,7 +7,7 @@
     "main": "index.js",
     "scripts": {
         "build": "npm run build:js && npm run build:sass",
-        "watch": "concurrently \"npm:watch:*\" -k -r",
+        "watch": "concurrently \"npm:watch:js\" \"npm:watch:sass\" -k -r",
         "build:js": "browserify src/js/index.js -s MetaValidator | terser > dist/metavalidator.min.js",
         "watch:js": "npm run build:js && onchange \"src/js/*.js\" \"src/js/presets/*.js\" -- npm run build:js",
         "build:js:dev": "browserify src/js/index.js -s MetaValidator -o dist/metavalidator.min.js",
@@ -26,6 +26,7 @@
         "onchange": "^6.1.0",
         "structured-data-testing-tool": "^4.5.0",
         "terser": "^4.6.6",
+        "validator": "^12.2.0",
         "yargs": "^15.1.0"
     }
 }
