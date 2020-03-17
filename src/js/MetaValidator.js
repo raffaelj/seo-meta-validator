@@ -112,7 +112,7 @@ Object.assign(App, {
 
         this.addPresetsToTests();
 
-        await this.addSchemasToTests(); // useless ??? - only a self test on existing data
+        await this.addSchemasToTests();
 
         this.runTests();
 
@@ -425,7 +425,7 @@ console.log('end of expect and still no error returned', value, test);
                         data[type][prop].map(async (dataSet, index) => {
 
                             var group = opts.group || `${name} #${index}`;
-                            
+
                             this.tests.push({
                                 type:   type,
                                 schema: name,
@@ -443,11 +443,11 @@ console.log('end of expect and still no error returned', value, test);
                                 group:      group,
                                 parent:     `${name}[${index}]`
                             };
-                            
+
                             if (opts.parent) {
                                 options.parent = `${opts.parent}.${options.parent}`;
                             }
-                            
+
                             await this.addSchemaPropertiesToTests(dataSet, options);
 
                         });
@@ -457,6 +457,7 @@ console.log('end of expect and still no error returned', value, test);
 
                         var index = 0;
                         var group = opts.group || `${name} #${index}`;
+
                         var options = {
                             type:       type,
                             schemaName: name,
@@ -556,7 +557,7 @@ console.log('end of expect and still no error returned', value, test);
 
     },
 
-    addPresetsToTests: function (presets) {
+    addPresetsToTests: function (presets, opts = {}) {
 
         presets = presets || this.presets;
 
@@ -591,35 +592,36 @@ console.log('end of expect and still no error returned', value, test);
 
                             if (schemaName == preset.schema) {
 
-                                var skipTest = false;
+// add schemas from presets to schema tests, too???
+// this.schemas.push(`${dataType}:${preset.schema}`);
+
+                                var testPassed = false;
 
                                 if (preset.conditional) {
-                                    skipTest = this.runSingleTest(preset.conditional);
+                                    testPassed = this.runSingleTest(preset.conditional);
                                 }
 
-                                if (!skipTest || !skipTest.error) {
+                                if (testPassed && !testPassed.error) return;
 
-                                    this.data[dataType][schemaName].forEach((instance, i) => {
+                                this.data[dataType][schemaName].forEach((instance, i) => {
 
-                                        preset.tests.forEach(test => {
+                                    preset.tests.forEach(test => {
 
-                                            var schemaTest = Object.assign({}, test, {
-                                                schema: preset.schema,
-                                                test: test.test.replace(/(.*)?\[\*\]/, `${preset.schema}[${i}]`),
-                                                type: dataType,
-                                                group: `#${i} (${dataType})`,
-                                                groups: [], // to do...
-                                            });
-
-                                            schemaTest.description = schemaTest.description || schemaTest.test.replace(/(.*)?\[\d\]\./, '').replace(/"/g, '');
-
-                                            this.tests.push(schemaTest);
-
+                                        var schemaTest = Object.assign({}, test, {
+                                            schema: preset.schema,
+                                            test: test.test.replace(/(.*)?\[\*\]/, `${preset.schema}[${i}]`),
+                                            type: dataType,
+                                            group: (opts.parent ? `${opts.parent} > ` :'') + `${schemaName} > #${i} (${dataType})`,
+                                            groups: [], // to do...
                                         });
+
+                                        schemaTest.description = schemaTest.description || schemaTest.test.replace(/(.*)?\[\d\]\./, '').replace(/"/g, '');
+
+                                        this.tests.push(schemaTest);
 
                                     });
 
-                                }
+                                });
 
                             }
 
@@ -661,7 +663,7 @@ console.log('end of expect and still no error returned', value, test);
 
             if (preset.hasOwnProperty('presets') && Array.isArray(preset.presets) && preset.presets.length) {
 
-                this.addPresetsToTests(preset.presets);
+                this.addPresetsToTests(preset.presets, {parent: preset.name});
 
             }
 

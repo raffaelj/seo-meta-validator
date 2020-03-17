@@ -62,7 +62,7 @@ module.exports = function() {
         });
         container.appendChild(displayToggle);
     }
-    
+
     var form = document.getElementById('metavalidator-form');
     if (!form) {
         form = document.createElement('form');
@@ -97,19 +97,21 @@ module.exports = function() {
             form.appendChild(urlInput);
         }
 
-        var selected = Object.keys(this.presets).map(e => {return this.presets[e].name});
-        
+        var selected = Object.keys(this.presets).map(e => {
+            return typeof this.presets[e] == 'string' ? this.presets[e] : this.presets[e].name
+        });
+
         var checkbox     = document.createElement('input');
         checkbox.type    = 'checkbox';
         checkbox.name    = `autodetect`;
         checkbox.id      = 'metavalidator-autodetect';
         checkbox.value   = 1;
         checkbox.checked = this.autodetect;
-        
+
         var label    = document.createElement('label');
         label.setAttribute('for', 'metavalidator-autodetect');
         label.innerText = 'Autodetect';
-        
+
         form.appendChild(checkbox);
         form.appendChild(label);
 
@@ -120,9 +122,9 @@ module.exports = function() {
         form.appendChild(submitButton);
 
         var presetFieldset = document.createElement('fieldset');
-        
+
         presetFieldset.appendChild(document.createTextNode('Presets: '));
-        
+
         Object.keys(this.defaultPresets).forEach(preset => {
 
             var name         = this.defaultPresets[preset].name;
@@ -136,7 +138,7 @@ module.exports = function() {
             var label    = document.createElement('label');
             label.setAttribute('for', 'metavalidator-preset-' + name);
             label.innerText = name;
-            
+
             // set title with containing presets
             if (this.defaultPresets[preset].presets) {
 
