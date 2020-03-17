@@ -1,0 +1,190 @@
+{
+  "headline": {
+    "id": "headline",
+    "label": "headline",
+    "comment": "Headline of the article.",
+    "domainIncludes": [
+      "CreativeWork"
+    ],
+    "rangeIncludes": [
+      "Text"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "author": {
+    "id": "author",
+    "label": "author",
+    "comment": "The author of this content or rating. Please note that author is special in that HTML 5 provides a special mechanism for indicating authorship via the rel tag. That is equivalent to this and may be used interchangeably.",
+    "domainIncludes": [
+      "CreativeWork",
+      "Rating"
+    ],
+    "rangeIncludes": [
+      "Organization",
+      "Person"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "datePublished": {
+    "id": "datePublished",
+    "label": "datePublished",
+    "comment": "Date of first broadcast/publication.",
+    "domainIncludes": [
+      "CreativeWork"
+    ],
+    "rangeIncludes": [
+      "Date",
+      "DateTime"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "image": {
+    "id": "image",
+    "label": "image",
+    "comment": "An image of the item. This can be a <a class=\"localLink\" href=\"http://schema.org/URL\">URL</a> or a fully described <a class=\"localLink\" href=\"http://schema.org/ImageObject\">ImageObject</a>.",
+    "subproperties": [
+      "logo",
+      "photo"
+    ],
+    "domainIncludes": [
+      "Thing"
+    ],
+    "rangeIncludes": [
+      "ImageObject",
+      "URL"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "url": {
+    "id": "url",
+    "label": "url",
+    "comment": "URL of the item.",
+    "domainIncludes": [
+      "Thing"
+    ],
+    "rangeIncludes": [
+      "URL"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "name": {
+    "id": "name",
+    "label": "name",
+    "comment": "The name of the item.",
+    "equivalentProperty": [
+      "http://purl.org/dc/terms/title"
+    ],
+    "domainIncludes": [
+      "Thing"
+    ],
+    "rangeIncludes": [
+      "Text"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "publisher": {
+    "id": "publisher",
+    "label": "publisher",
+    "comment": "The publisher of the creative work.",
+    "domainIncludes": [
+      "CreativeWork"
+    ],
+    "rangeIncludes": [
+      "Organization",
+      "Person"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "logo": {
+    "id": "logo",
+    "label": "logo",
+    "comment": "An associated logo.",
+    "subPropertyOf": [
+      "image"
+    ],
+    "domainIncludes": [
+      "Brand",
+      "Organization",
+      "Place",
+      "Product",
+      "Service"
+    ],
+    "rangeIncludes": [
+      "ImageObject",
+      "URL"
+    ],
+    "pending": false,
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  },
+  "target": {
+    "id": "target",
+    "label": "target",
+    "comment": "Indicates a target EntryPoint for an Action.",
+    "domainIncludes": [
+      "Action"
+    ],
+    "rangeIncludes": [
+      "EntryPoint"
+    ],
+    "pending": false,
+    "subPropertyOf": "",
+    "equivalentProperty": "",
+    "subproperties": "",
+    "inverseOf": "",
+    "supersedes": "",
+    "supersededBy": "",
+    "isPartOf": ""
+  }
+}
