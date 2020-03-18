@@ -229,8 +229,8 @@ module.exports = function() {
                     if ((test.group == name) || (!test.group && name == 'ungrouped')) {
                         output += `<li class="metavalidator-${responseType}" title="${quote(test.test)}">${test.description || test.test}`;
 
-                        if (test.error) {
-                            output += `<b class="info" title="${quote(test.error.message || test.error.type)}"> (i)</b>`;
+                        if (test.result && test.result.error) {
+                            output += `<b class="info" title="${quote(test.result.error.message || test.result.error.type)}"> (i)</b>`;
                         }
 
                         output += `</li>`;

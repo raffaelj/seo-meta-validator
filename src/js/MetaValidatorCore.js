@@ -23,6 +23,9 @@ module.exports = {
     presets: [],
     schemas: [],
 
+    // helper to avoid adding the same preset test multiple times
+    presetsInUse: [],
+
     autodetect: false,
 
     response: {
@@ -110,6 +113,11 @@ module.exports = {
 
             var result = this.runSingleTest(test);
 
+            // might break the ability to rerun different pages with same
+            // MetaValidator instance, because the tests are modified...
+            // to do: needs some testing
+            test.result = result;
+
             this.formatResponse(result, test);
 
         });
@@ -117,6 +125,9 @@ module.exports = {
     },
 
     runSingleTest: function(test, data) {
+
+        // avoid running the same test multiple times
+        if (test.hasOwnProperty(result)) return test.result;
 
         data = data || this.data;
 
@@ -294,16 +305,16 @@ console.log('end of expect and still no error returned', value, test);
         } else if (result.error) {
 
             if (test.optional) {
-                // this.response.optional.push(test);
-                this.response.optional.push(Object.assign(result,test));
+                this.response.optional.push(test);
+                // this.response.optional.push(Object.assign(result,test));
             }
             else if (test.warning) {
-                // this.response.warnings.push(test);
-                this.response.warnings.push(Object.assign(result,test));
+                this.response.warnings.push(test);
+                // this.response.warnings.push(Object.assign(result,test));
             }
             else {
-                // this.response.failed.push(test);
-                this.response.failed.push(Object.assign(result,test));
+                this.response.failed.push(test);
+                // this.response.failed.push(Object.assign(result,test));
             }
 
         }
@@ -314,8 +325,8 @@ console.log('end of expect and still no error returned', value, test);
 
         data = data || this.data;
 
-        // disabled for debugging
-        this.addMetaTagsToTests();
+        // disabled for debugging and because there is no real validation
+        // this.addMetaTagsToTests();
 
         var schemas = [];
 
@@ -548,6 +559,11 @@ console.log('end of expect and still no error returned', value, test);
                 throw new Error(`Preset specified does not have a 'name' (required)`)
             }
 
+            // skip preset if it is already in use
+            if (!this.presetsInUse.includes(preset.name)) {
+                this.presetsInUse.push(preset.name);
+            } else { return; }
+
             if (preset.tests && Array.isArray(preset.tests)) {
 
                 if (preset.schema) {
@@ -561,13 +577,13 @@ console.log('end of expect and still no error returned', value, test);
 // add schemas from presets to schema tests, too???
 // this.schemas.push(`${dataType}:${preset.schema}`);
 
-                                var testPassed = false;
+                                var conditionalTestPassed = false;
 
                                 if (preset.conditional) {
-                                    testPassed = this.runSingleTest(preset.conditional);
+                                    conditionalTestPassed = this.runSingleTest(preset.conditional);
                                 }
 
-                                if (testPassed && !testPassed.error) return;
+                                if (conditionalTestPassed && !conditionalTestPassed.error) return;
 
                                 this.data[dataType][schemaName].forEach((instance, i) => {
 
@@ -643,6 +659,7 @@ console.log('end of expect and still no error returned', value, test);
         this.tests =   [];
         this.presets = [];
         this.schemas = [];
+        this.presetsInUse = [];
 
         this.response = {
             passed:   [],
