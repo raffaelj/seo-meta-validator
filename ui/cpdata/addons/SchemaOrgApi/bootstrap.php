@@ -16,11 +16,22 @@ $this->module('schemaorgapi')->extend([
 
     },
 
+    'convert' => function() {
+
+        $return = [];
+
+        $return[] = $this->convertToLinkedSchemasCollection();
+        $return[] = $this->convertToLinkedPropertiesCollection();
+
+        return $return;
+
+    },
+
     'importCSV' => function($collection, $file_name, $pending = false) {
 
         $time = time();
         
-        if (($handle = fopen(__DIR__.'/csv/'.$file_name, 'r')) !== FALSE) {
+        if (($handle = fopen(__DIR__.'/csv/'.$file_name, 'r')) !== false) {
 
             $headers = fgetcsv($handle, 0, ',');
 
@@ -28,7 +39,7 @@ $this->module('schemaorgapi')->extend([
 
             $error = null;
 
-            while (($data = fgetcsv($handle, 0, ',')) !== FALSE) {
+            while (($data = fgetcsv($handle, 0, ',')) !== false) {
 
                 $entry = [];
 
@@ -85,7 +96,9 @@ $this->module('schemaorgapi')->extend([
 
     },
 
-    'convertToLinkedCollections' => function() {
+    'convertToLinkedSchemasCollection' => function() {
+
+        $time = time();
 
         $collection = 'schema_types';
 
@@ -102,7 +115,7 @@ $this->module('schemaorgapi')->extend([
         }
 
         foreach ($this->app->module('collections')->find($collection . '_linked') as &$entry) {
-            
+
             if (isset($entry['subTypes']) && is_array($entry['subTypes'])) {
 
                 $newLinkedSubTypes = [];
@@ -134,6 +147,106 @@ $this->module('schemaorgapi')->extend([
             $this->app->module('collections')->save($collection . '_linked', $entry);
 
         }
+
+        $seconds = time() - $time;
+
+        return ['message' => "converted schmema_types to linked collection in $seconds seconds"];
+
+    },
+
+    'convertToLinkedPropertiesCollection' => function() {
+
+        $time = time();
+
+        $collection = 'schema_properties';
+
+        $options = [
+            // 'limit' => 5,
+        ];
+
+        foreach ($this->app->module('collections')->find($collection, $options) as &$entry) {
+
+            unset($entry['_id']);
+
+            $this->app->module('collections')->save($collection . '_linked', $entry);
+
+        }
+
+        foreach ($this->app->module('collections')->find($collection . '_linked') as &$entry) {
+
+            // link to schema types
+            foreach (['domainIncludes', 'rangeIncludes'] as $fieldName) {
+
+                if (isset($entry[$fieldName]) && is_array($entry[$fieldName])) {
+
+                    $newLinkedSubTypes = [];
+
+                    foreach ($entry[$fieldName] as $subType) {
+
+                        $filter = [
+                            'id' => $subType,
+                        ];
+
+                        $linkedEntry = $this->app->module('collections')->findOne('schema_types_linked', $filter);
+                        
+                        if ($linkedEntry) {
+
+                            $newLinkedSubTypes[] = [
+                                '_id'     => $linkedEntry['_id'],
+                                'link'    => 'schema_types_linked',
+                                'display' => $linkedEntry['id'],
+                            ];
+
+                        }
+
+                    }
+
+                    $entry[$fieldName] = $newLinkedSubTypes;
+
+                }
+
+            }
+
+            // link to schema properties
+            foreach (['subproperties', 'subPropertyOf'] as $fieldName) {
+
+                if (isset($entry[$fieldName]) && is_array($entry[$fieldName])) {
+
+                    $newLinkedSubTypes = [];
+
+                    foreach ($entry[$fieldName] as $subType) {
+
+                        $filter = [
+                            'id' => $subType,
+                        ];
+
+                        $linkedEntry = $this->app->module('collections')->findOne('schema_properties_linked', $filter);
+                        
+                        if ($linkedEntry) {
+
+                            $newLinkedSubTypes[] = [
+                                '_id'     => $linkedEntry['_id'],
+                                'link'    => 'schema_properties_linked',
+                                'display' => $linkedEntry['id'],
+                            ];
+
+                        }
+
+                    }
+
+                    $entry[$fieldName] = $newLinkedSubTypes;
+
+                }
+
+            }
+
+            $this->app->module('collections')->save($collection . '_linked', $entry);
+
+        }
+
+        $seconds = time() - $time;
+
+        return ['message' => "converted schmema_types to linked collection in $seconds seconds"];
 
     },
 

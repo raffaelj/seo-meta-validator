@@ -15,8 +15,8 @@ $this->bind('/schemaorgapi/import_schemas', function() {
 
 $this->bind('/schemaorgapi/convert_schemas', function() {
 
-    $this->module('schemaorgapi')->convertToLinkedCollections();
+    $ret = $this->module('schemaorgapi')->convert();
 
-    return 'converted to linked collection';
+    return $ret;
 
 });

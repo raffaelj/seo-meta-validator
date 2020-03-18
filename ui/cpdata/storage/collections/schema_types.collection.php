@@ -1,7 +1,7 @@
 <?php
  return array (
   'name' => 'schema_types',
-  'label' => '',
+  'label' => 'Types',
   '_id' => 'schema_types5e6aa1fddc727',
   'fields' => 
   array (
@@ -17,7 +17,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
@@ -35,7 +35,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
@@ -226,8 +226,8 @@
   'sortable' => false,
   'in_menu' => false,
   '_created' => 1584046589,
-  '_modified' => 1584450716,
-  'color' => '',
+  '_modified' => 1584568406,
+  'color' => '#FFCE54',
   'acl' => 
   array (
     'public' => 

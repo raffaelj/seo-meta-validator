@@ -1,7 +1,7 @@
 <?php
  return array (
   'name' => 'schema_properties',
-  'label' => '',
+  'label' => 'Properties',
   '_id' => 'schema_properties5e6a9dfda04f4',
   'fields' => 
   array (
@@ -17,7 +17,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
@@ -35,7 +35,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-2',
       'lst' => true,
       'acl' => 
       array (
@@ -244,8 +244,8 @@
   'sortable' => false,
   'in_menu' => false,
   '_created' => 1584045565,
-  '_modified' => 1584450726,
-  'color' => '',
+  '_modified' => 1584568463,
+  'color' => '#A0D468',
   'acl' => 
   array (
     'public' => 

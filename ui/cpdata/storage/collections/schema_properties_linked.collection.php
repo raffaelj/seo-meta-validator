@@ -1,8 +1,8 @@
 <?php
  return array (
-  'name' => 'schema_types_linked',
-  'label' => 'Types (linked)',
-  '_id' => 'schema_types_linked5e6ac00357771',
+  'name' => 'schema_properties_linked',
+  'label' => 'Properties (linked)',
+  '_id' => 'schema_properties_linked5e72870d9e58d',
   'fields' => 
   array (
     0 => 
@@ -62,16 +62,18 @@
     ),
     3 => 
     array (
-      'name' => 'subTypeOf',
+      'name' => 'subPropertyOf',
       'label' => '',
-      'type' => 'tags',
+      'type' => 'collectionlink',
       'default' => '',
       'info' => '',
       'group' => '',
       'localize' => false,
       'options' => 
       array (
-        'link' => '',
+        'link' => 'schema_properties_linked',
+        'multiple' => true,
+        'display' => 'id',
       ),
       'width' => '1-1',
       'lst' => true,
@@ -81,7 +83,7 @@
     ),
     4 => 
     array (
-      'name' => 'enumerationtype',
+      'name' => 'equivalentProperty',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -99,15 +101,18 @@
     ),
     5 => 
     array (
-      'name' => 'equivalentClass',
+      'name' => 'subproperties',
       'label' => '',
-      'type' => 'tags',
+      'type' => 'collectionlink',
       'default' => '',
       'info' => '',
       'group' => '',
       'localize' => false,
       'options' => 
       array (
+        'link' => 'schema_properties_linked',
+        'multiple' => true,
+        'display' => 'id',
       ),
       'width' => '1-1',
       'lst' => true,
@@ -117,15 +122,18 @@
     ),
     6 => 
     array (
-      'name' => 'properties',
+      'name' => 'domainIncludes',
       'label' => '',
-      'type' => 'tags',
+      'type' => 'collectionlink',
       'default' => '',
       'info' => '',
       'group' => '',
       'localize' => false,
       'options' => 
       array (
+        'link' => 'schema_types_linked',
+        'multiple' => true,
+        'display' => 'id',
       ),
       'width' => '1-1',
       'lst' => true,
@@ -135,7 +143,7 @@
     ),
     7 => 
     array (
-      'name' => 'subTypes',
+      'name' => 'rangeIncludes',
       'label' => '',
       'type' => 'collectionlink',
       'default' => '',
@@ -156,7 +164,7 @@
     ),
     8 => 
     array (
-      'name' => 'supersedes',
+      'name' => 'inverseOf',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -174,7 +182,7 @@
     ),
     9 => 
     array (
-      'name' => 'supersededBy',
+      'name' => 'supersedes',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -192,7 +200,7 @@
     ),
     10 => 
     array (
-      'name' => 'isPartOf',
+      'name' => 'supersededBy',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -209,6 +217,24 @@
       ),
     ),
     11 => 
+    array (
+      'name' => 'isPartOf',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    12 => 
     array (
       'name' => 'pending',
       'label' => '',
@@ -229,9 +255,9 @@
   ),
   'sortable' => false,
   'in_menu' => false,
-  '_created' => 1584054275,
-  '_modified' => 1584568442,
-  'color' => '#FFCE54',
+  '_created' => 1584563981,
+  '_modified' => 1584568335,
+  'color' => '#A0D468',
   'acl' => 
   array (
   ),
