@@ -1,6 +1,8 @@
 
 // https://developer.twitter.com/en/docs/tweets/optimize-with-cards/overview/markup
 
+// difference to sdtt: image:alt is not required
+
 module.exports = {
     name: 'Twitter',
     description: 'Suggested metatags for Twitter',

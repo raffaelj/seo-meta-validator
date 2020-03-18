@@ -1,6 +1,10 @@
 
-const title       = require('./title.js');
-const description = require('./description.js');
+const title               = require('./title.js');
+const description         = require('./description.js');
+const twitter_title       = require('./twitter_title.js');
+const twitter_description = require('./twitter_description.js');
+const og_title            = require('./og_title.js');
+const og_description      = require('./og_description.js');
 
 module.exports = {
     name: 'SEO',
@@ -19,7 +23,11 @@ module.exports = {
     ],
     presets: [
         title,
-        description
+        description,
+        twitter_title,
+        twitter_description,
+        og_title,
+        og_description,
     ],
 };
 

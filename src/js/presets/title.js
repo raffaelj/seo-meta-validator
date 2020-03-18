@@ -17,7 +17,7 @@ module.exports = {
             if: {
                 test: `"title"`,
                 type: 'htmltags',
-                warning: true,
+                // warning: true,
                 expect: new RegExp('^.{25,75}$'),
                 description: 'title must be 25 - 75 characters long'
             },
