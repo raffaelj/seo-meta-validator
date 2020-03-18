@@ -11,8 +11,6 @@ var App = {
     base_route: typeof window != 'undefined' ? window.location.pathname.replace(/\/$/, '') : '',
     base_url:   typeof window != 'undefined' ? window.location.pathname.replace(/\/$/, '') : '',
 
-    _events: {},
-
     route: function(url) {
 
         if (url.indexOf('http') == 0 || url.indexOf('//') == 0) return url;
@@ -75,38 +73,6 @@ var App = {
             xhr.send(data);
         });
 
-    },
-
-    on: function(name, fn){
-        if (!this._events[name]) this._events[name] = [];
-        this._events[name].push(fn);
-    },
-
-    off: function(name, fn){
-        if (!this._events[name]) return;
-
-        if (!fn) {
-           this._events[name] = [];
-        } else {
-
-            for (var i=0; i < this._events[name].length; i++) {
-                if (this._events[name][i]===fn) {
-                    this._events[name].splice(i, 1);
-                    break;
-                }
-            }
-        }
-    },
-
-    trigger: function(name, params) {
-
-        if (!this._events[name]) return;
-
-        var event = {"name":name, "params": params};
-
-        for (var i=0; i < this._events[name].length; i++) {
-            this._events[name][i].apply(App, [event]);
-        }
     },
 
 };

@@ -3,9 +3,6 @@
 
 module.exports = function() {
 
-    // MetaValidator instance
-    var $this = this;
-    
     // helper function to replace `"` with &quot;
     function quote(str) {
         if (!str) return '';

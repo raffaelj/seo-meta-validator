@@ -1,7 +1,7 @@
 
-var MetaValidator = require('./MetaValidator.js');
+var MetaValidator = require('./MetaValidatorBrowser.js');
 
-var temporaryBrowserUI = require('./MetaValidatorUI.js');
+var temporaryBrowserUI = require('./temporaryBrowserUI.js');
 
 // modify instance here, e. g. call a function on finish event...
 MetaValidator.on('finished', temporaryBrowserUI);

@@ -1,11 +1,7 @@
 #!/usr/bin/env node
 
-const fetch         = require('node-fetch');
-const jsdom         = require('jsdom');
-const { JSDOM }     = jsdom;
-
-var   MetaValidator = require('../src/js/MetaValidator.js');
-const cliOutput     = require('../src/js/MetaValidatorCLI.js');
+var   MetaValidator      = require('../src/js/MetaValidatorCLI.js');
+const temporaryCliOutput = require('../src/js/temporaryCliOutput.js');
 
 const argv = require('yargs')
 .option('url', {
@@ -16,31 +12,14 @@ const argv = require('yargs')
 })
 .argv;
 
-// replace fetchUrl function to use node-fetch instead of xhr request
-MetaValidator.fetchUrl = async function(url, options) {
-
-    const res  = await fetch(url);
-    const html = await res.text();
-
-    return html;
-};
-
-// replace DOMParser with jsdom
-MetaValidator.HTMLParser.parse = function (html, options) {
-
-    var DOMParser = new JSDOM().window.DOMParser;
-    var parser    = new DOMParser();
-
-    return parser.parseFromString(html, 'text/html');
-};
-
 var url = argv.url;
+
 var options = {
     presets: ['Google', 'Twitter', 'Facebook']
 };
 
 // pass cli output function to finish event
-MetaValidator.on('finished', cliOutput);
+MetaValidator.on('finished', temporaryCliOutput);
 
 // run validator
 MetaValidator.run(url, options);
