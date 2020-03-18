@@ -113,6 +113,11 @@ module.exports = {
 
             var result = this.runSingleTest(test);
 
+            if (result.if) {
+                test.if.group = test.group;
+                test = test.if;
+            }
+
             // might break the ability to rerun different pages with same
             // MetaValidator instance, because the tests are modified...
             // to do: needs some testing
@@ -132,6 +137,17 @@ module.exports = {
         data = data || this.data;
 
         test.type = test.type || 'any';
+
+        if (test.if) {
+
+            var conditionalResult = this.runSingleTest(test.if, data);
+
+            if (!conditionalResult || conditionalResult.error) {
+                conditionalResult.if = test.if;
+                return conditionalResult;
+            }
+
+        }
 
         var result;
 
@@ -157,7 +173,7 @@ module.exports = {
         var error,
             path  = test.test,
             value = this.schemaValidator.search(json, path);
-
+        
         if (test.schema && test.property) {
 
             // compare allowed properties
@@ -264,8 +280,8 @@ module.exports = {
         // If test is a Regular Expression…
         if (value && test.expect instanceof RegExp) {
 
-            if ( (Array.isArray(value) && value.some(v => { return v.match(test.expect); }))
-              || (typeof value == 'string' && value.match(test.expect)) ) {
+            if ( (Array.isArray(value) && !value.some(v => { return v.match(test.expect); }))
+              || (typeof value == 'string' && !value.match(test.expect)) ) {
 
                 return {
                     type: 'REGEXP_FAILED',
