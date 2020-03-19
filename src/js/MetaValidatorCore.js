@@ -341,11 +341,11 @@ console.log('end of expect and still no error returned', value, test);
             }
             else if (test.warning) {
                 // this.response.warnings.push(test);
-                this.response.optional.push(Object.assign({result:result},test));
+                this.response.warnings.push(Object.assign({result:result},test));
             }
             else {
                 // this.response.failed.push(test);
-                this.response.optional.push(Object.assign({result:result},test));
+                this.response.failed.push(Object.assign({result:result},test));
             }
 
         }
