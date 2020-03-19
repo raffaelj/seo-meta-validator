@@ -41,6 +41,8 @@ If you want to use the rest api to load missing schema definitions on runtime, y
 
 or download [Cockpit CMS][3] and unzip it into `/path/to/seo-meta-validator/ui/lib/cockpit`.
 
+If you downloaded Cockpit and you want to login, navigate to `http://localhost/seo-meta-validator/ui` in your browser (user: admin, password: admin).
+
 ### browser bookmarklet
 
 Create a browser bookmark and copy the content from `dist/bookmarklet.js` in the location field.
