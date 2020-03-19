@@ -10,6 +10,8 @@ const validator  = require('validator/validator.min.js');
 // to reduce number of api requests
 const schemaOrgDefinitions = require('./schemas/common_schemas.json');
 const schemaOrgProperties  = require('./schemas/common_properties.json');
+// const schemaOrgDefinitions = {};
+// const schemaOrgProperties  = {};
 
 var App               = require('./App.js');
 var MetaValidatorCore = require('./MetaValidatorCore.js');
@@ -94,6 +96,12 @@ Object.assign(App, MetaValidatorCore, {
         }
 
         return false;
+
+    },
+
+    sleep: async function(ms) {
+
+        return new Promise(resolve => setTimeout(resolve, ms));
 
     },
 

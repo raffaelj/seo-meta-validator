@@ -96,6 +96,14 @@ module.exports = {
 
         await this.addSchemasToTests();
 
+        // For some reason the structure with multiple nested recursions and api
+        // requests is too slow or I forgot/overlooked something... If I add a
+        // delay, the schema tests for nested properties are available.
+        // This function is only available in browser bundle
+        // to do: needs some more testing
+        // if (this.sleep) await this.sleep(1000);
+        if (this.sleep) await this.sleep(500);
+
         this.runTests();
 
         this.trigger('finished');
@@ -121,7 +129,7 @@ module.exports = {
             // might break the ability to rerun different pages with same
             // MetaValidator instance, because the tests are modified...
             // to do: needs some testing
-            test.result = result;
+            // test.result = result;
 
             this.formatResponse(result, test);
 
@@ -173,7 +181,7 @@ module.exports = {
         var error,
             path  = test.test,
             value = this.schemaValidator.search(json, path);
-        
+
         if (test.schema && test.property) {
 
             // compare allowed properties
@@ -205,6 +213,13 @@ module.exports = {
                 error = {
                     type: 'INVALID_SCHEMA_PROPERTY',
                     message: 'Content type is not allowed in schema property'
+                }
+            }
+
+            if (rangeValidation === null) {
+                error = {
+                    type: 'MAYBE_INVALID_SCHEMA_PROPERTY',
+                    message: 'No content validator found.'
                 }
             }
 
@@ -321,16 +336,16 @@ console.log('end of expect and still no error returned', value, test);
         } else if (result.error) {
 
             if (test.optional) {
-                this.response.optional.push(test);
-                // this.response.optional.push(Object.assign(result,test));
+                // this.response.optional.push(test);
+                this.response.optional.push(Object.assign({result:result},test));
             }
             else if (test.warning) {
-                this.response.warnings.push(test);
-                // this.response.warnings.push(Object.assign(result,test));
+                // this.response.warnings.push(test);
+                this.response.optional.push(Object.assign({result:result},test));
             }
             else {
-                this.response.failed.push(test);
-                // this.response.failed.push(Object.assign(result,test));
+                // this.response.failed.push(test);
+                this.response.optional.push(Object.assign({result:result},test));
             }
 
         }
@@ -422,8 +437,8 @@ console.log('end of expect and still no error returned', value, test);
                             this.tests.push({
                                 type:   type,
                                 schema: name,
-                                test:   (opts.parent ? `${opts.parent}.` : '') + `${prop}[${index}]`,
-                                group: group,
+                                test:   (opts.parent ? `${opts.parent}.` : '') + `\"${prop}\"[${index}]`,
+                                group:  group,
                                 groups: groups,
                                 description:  type ? `schema in ${type}` : `schema found`,
                                 autoDetected: true
@@ -434,7 +449,7 @@ console.log('end of expect and still no error returned', value, test);
                                 schemaName: name,
                                 index:      index,
                                 group:      group,
-                                parent:     `${name}[${index}]`
+                                parent:     `\"${name}\"[${index}]`
                             };
 
                             if (opts.parent) {
@@ -456,7 +471,7 @@ console.log('end of expect and still no error returned', value, test);
                             schemaName: name,
                             index:      index,
                             group:      group,
-                            parent:     `${prop}`
+                            parent:     `\"${prop}\"`
                         };
 
                         if (opts.parent) {
@@ -491,12 +506,12 @@ console.log('end of expect and still no error returned', value, test);
 
         Object.keys(dataSet).map(async prop => {
 
-            if (prop && prop != 'undefined' && prop != '@type' && prop != '@context') {
+            if (prop && prop != 'undefined' && prop != '@type' && prop != '@context' && prop != '@id') {
 
-                if (typeof dataSet[prop] == 'string') {
+                if (typeof dataSet[prop] == 'string' || typeof dataSet[prop] == 'number') {
 
                     var description = parent.split('.');
-                    description.shift()
+                    description.shift();
                     description = description.join('.');
                     description = description + (description.length ? '.' : '')  + prop;
 
@@ -519,28 +534,66 @@ console.log('end of expect and still no error returned', value, test);
 
                     }
 
+                    if (!propertyDefinition) {
+console.log('missing propertyDefinition', prop);
+                    }
+
                     this.tests.push(test);
+
+                }
+
+                else if (Array.isArray(dataSet[prop])) {
+
+                    dataSet[prop].map(async (p, i) =>{
+
+                        var opts = {
+                            type:       type,
+                            schemaName: name,
+                            index:      index,
+                            group:      group,
+                            parent:     `${parent}.\"${prop}\"[${i}]`
+                        };
+
+                        await this.addSchemaPropertiesToTests(p, opts);
+
+                    });
 
                 }
 
                 else if (typeof dataSet[prop] == 'object') {
 
-                    var childSchema = `${type}:${dataSet[prop]['@type']}`;
+                    if (dataSet[prop]['@type']) {
 
-                    var childData = {
-                        [type]: {
-                            [prop]: dataSet[prop]
-                        }
-                    };
+                        var childSchema = `${type}:${dataSet[prop]['@type']}`;
 
-                    var opts = {
-                        parentPrefix: `${schemaName}[${index}].`,
-                        prop: prop,
-                        parent: parent,
-                        group: group,
-                    };
+                        var childData = {
+                            [type]: {
+                                [prop]: dataSet[prop]
+                            }
+                        };
 
-                    await this.addSchemasToTests(childData, [childSchema], opts);
+                        var opts = {
+                            prop:   prop,
+                            parent: parent,
+                            group:  group,
+                        };
+
+                        await this.addSchemasToTests(childData, [childSchema], opts);
+
+                    }
+                    
+                    else {
+
+                        var opts = {
+                            type:       type,
+                            schemaName: name,
+                            index:      index,
+                            group:      group,
+                            parent:     `${parent}.${prop}`
+                        };
+
+                        await this.addSchemaPropertiesToTests(dataSet[prop], opts);
+                    }
 
                 }
 
@@ -711,10 +764,11 @@ console.log('end of expect and still no error returned', value, test);
         var testPassed = test.range.some(range => {
 
             switch (range) {
-                case 'URL':         return this.validator.isURL(value);           break;
+                case 'URL':         return this.validator.isURL(value, {require_tld: false});           break;
                 case 'Date':        // to do: different checks!!!
                 case 'DateTime':    return this.validator.isISO8601(value);       break;
                 case 'Text':        return typeof value === 'string';             break;
+                case 'Integer':     return typeof value === 'number';             break;
             }
 
             rangeTestExists = false;
@@ -722,6 +776,8 @@ console.log('end of expect and still no error returned', value, test);
             return false;
 
         });
+
+if (!testPassed) console.log('validateSchemaOrgRange', value, test);
 
         return testPassed ? testPassed : (!rangeTestExists ? null : false);
 

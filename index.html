@@ -11,7 +11,9 @@
     </style>
 </head>
 <body>
-
+    
+    <a href="http://localhost/seo-meta-validator/ui" style="float:right">Login</a>
+    
     <h1>SEO Meta Validator</h1>
 
     <p>Enter a url, select a preset and click the button to run the tests. It works well on localhost, but the requests fail for external urls (CORS).</p>
@@ -20,11 +22,14 @@
     <script>
 
         var url = '/example.html';
-        // var url = 'http://localhost/CpMultiplane/de';
+        //var url = 'http://localhost/CpMultiplane/en';
+        //var url = 'http://localhost/CpMultiplane/en/completely-empty-page';
+        //var url = 'http://localhost/CpMultiplane/en/short';
 
         var options = {
-            // autodetect: true,
-            // presets: ['Google'],
+            autodetect: true,
+            //presets: ['Default', 'Google'],
+            //presets: ['Default', 'SEO', 'Google', 'Twitter', 'Facebook'],
         };
 
         MetaValidator.schemaOrgApiUrl = 'http://localhost/seo-meta-validator/ui/api';
