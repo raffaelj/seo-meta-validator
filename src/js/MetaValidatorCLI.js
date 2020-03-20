@@ -6,7 +6,7 @@ const jsdom         = require('jsdom');
 const { JSDOM }     = jsdom;
 const validator     = require('validator');
 
-const schemaOrgDefinitions = require('./schemas/schemas.json');
+const schemaOrgSchemas = require('./schemas/schemas.json');
 const schemaOrgProperties  = require('./schemas/properties.json');
 
 var MetaValidatorCore = require('./MetaValidatorCore.js');
@@ -27,8 +27,9 @@ var MetaValidator = Object.assign(MetaValidatorCore, {
 
     HTMLParser: HTMLParser,
 
-    schemaOrgDefinitions: schemaOrgDefinitions,
-    schemaOrgProperties:  schemaOrgProperties,
+    schemaOrgSchemas: schemaOrgSchemas,
+    schemaOrgProperties: schemaOrgProperties,
+    validator: validator,
 
     fetchUrl: async function(url, options) {
 
@@ -36,26 +37,6 @@ var MetaValidator = Object.assign(MetaValidatorCore, {
         const html = await res.text();
 
         return html;
-
-    },
-
-    getSchemaOrgSchema: function (schemaName, options) {
-
-        if (this.schemaOrgDefinitions[schemaName]) {
-            return this.schemaOrgDefinitions[schemaName];
-        }
-
-        return false;
-
-    },
-
-    getSchemaOrgProperty: function (propertyName, options) {
-
-        if (this.schemaOrgProperties[propertyName]) {
-            return this.schemaOrgProperties[propertyName];
-        }
-
-        return false;
 
     },
 

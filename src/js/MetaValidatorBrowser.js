@@ -6,13 +6,6 @@ const HTMLParser = require('./HTMLParser.js');
 // reuse the minified validator, so I don't have to minify it myself
 const validator  = require('validator/validator.min.js');
 
-// load subsets of schema files to avoid loading the whole schemas (>1MB) and
-// to reduce number of api requests
-const schemaOrgDefinitions = require('./schemas/common_schemas.json');
-const schemaOrgProperties  = require('./schemas/common_properties.json');
-// const schemaOrgDefinitions = {};
-// const schemaOrgProperties  = {};
-
 var App               = require('./App.js');
 var MetaValidatorCore = require('./MetaValidatorCore.js');
 
@@ -22,16 +15,14 @@ Object.assign(App, MetaValidatorCore, {
     url: typeof window != 'undefined' && window.location ? window.location.toString() : '',
 
     // load missing schema.org definitions on run time
-    // schemaOrgApiUrl: '',
-
     // use hard coded api url while developing (also to not break bookmarklet usage)
     schemaOrgApiUrl: 'http://localhost/seo-meta-validator/ui/api',
 
     HTMLParser: HTMLParser,
     validator:  validator,
 
-    schemaOrgDefinitions: schemaOrgDefinitions,
-    schemaOrgProperties:  schemaOrgProperties,
+    schemaOrgSchemas: {},
+    schemaOrgProperties: {},
 
     /**
      * Fetch Url and return html string
@@ -45,63 +36,37 @@ Object.assign(App, MetaValidatorCore, {
 
     },
 
-    /**
-     * get single schema definition
-     * loads and updates definitions on runtime with rest api responses
-     *
-     * @param   String    schemaName
-     * @param   Object    options           Not implemented, yet
-     * @return  mixed     Object | false
-     */
-    getSchemaOrgSchema: async function (schemaName, options) {
+    // preload all schemas and properties from api and save it to localStorage
+    preloadSchemaOrgData: function(fn) {
 
-        if (this.schemaOrgDefinitions[schemaName]) {
-            return this.schemaOrgDefinitions[schemaName];
+        var $this = this;
+
+        var url = this.schemaOrgApiUrl + '/all';
+
+        if (localStorage.hasOwnProperty('schemaOrgSchemas') && localStorage.hasOwnProperty('schemaOrgProperties')) {
+
+            $this.schemaOrgSchemas = JSON.parse(localStorage.getItem('schemaOrgSchemas'));
+            $this.schemaOrgProperties  = JSON.parse(localStorage.getItem('schemaOrgProperties'));
+
+            if (fn && typeof fn == 'function') fn();
+
         }
 
-        var url = this.schemaOrgApiUrl + '/schema/' + schemaName;
+        else {
 
-        var response = await this.request(url);
+            this.request(url).then(function(data) {
 
-        if (!response.error) {
-            this.schemaOrgDefinitions[schemaName] = response;
-            return response;
+                $this.schemaOrgSchemas = data.schemas;
+                $this.schemaOrgProperties  = data.properties;
+
+                localStorage.setItem('schemaOrgSchemas',    JSON.stringify(data.schemas));
+                localStorage.setItem('schemaOrgProperties', JSON.stringify(data.properties));
+
+                if (fn && typeof fn == 'function') fn();
+
+            });
+
         }
-
-        return false;
-
-    },
-
-    /**
-     * get single schema property definition
-     * loads and updates definitions on runtime with rest api responses
-     *
-     * @param   String    schemaName
-     * @param   Object    options           Not implemented, yet
-     * @return  mixed     Object | false
-     */
-    getSchemaOrgProperty: async function (propertyName, options) {
-
-        if (this.schemaOrgProperties[propertyName]) {
-            return this.schemaOrgProperties[propertyName];
-        }
-
-        var url = this.schemaOrgApiUrl + '/property/' + propertyName;
-
-        var response = await this.request(url);
-
-        if (!response.error) {
-            this.schemaOrgProperties[propertyName] = response;
-            return response;
-        }
-
-        return false;
-
-    },
-
-    sleep: async function(ms) {
-
-        return new Promise(resolve => setTimeout(resolve, ms));
 
     },
 

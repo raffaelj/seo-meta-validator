@@ -75,6 +75,14 @@ module.exports = {
 
     run: async function(url, options) {
 
+        // preload schema data from api or from localStorage
+        if (Object.keys(this.schemaOrgSchemas).length == 0) {
+            this.preloadSchemaOrgData(() => {
+                this.run(url, options);
+            });
+            return;
+        }
+
         url = url || this.url;
 
         this.url = url;
@@ -94,15 +102,7 @@ module.exports = {
 
         this.addPresetsToTests();
 
-        await this.addSchemasToTests();
-
-        // For some reason the structure with multiple nested recursions and api
-        // requests is too slow or I forgot/overlooked something... If I add a
-        // delay, the schema tests for nested properties are available.
-        // This function is only available in browser bundle
-        // to do: needs some more testing
-        // if (this.sleep) await this.sleep(1000);
-        if (this.sleep) await this.sleep(500);
+        this.addSchemasToTests();
 
         this.runTests();
 
@@ -125,11 +125,6 @@ module.exports = {
                 test.if.group = test.group;
                 test = test.if;
             }
-
-            // might break the ability to rerun different pages with same
-            // MetaValidator instance, because the tests are modified...
-            // to do: needs some testing
-            // test.result = result;
 
             this.formatResponse(result, test);
 
@@ -179,16 +174,17 @@ module.exports = {
         if (!test || !json || !test.test) return false;
 
         var error,
+            success = null,
             path  = test.test,
             value = this.schemaValidator.search(json, path);
 
         if (test.schema && test.property) {
 
             // compare allowed properties
-            if (this.schemaOrgDefinitions[test.schema].properties
-              && Array.isArray(this.schemaOrgDefinitions[test.schema].properties)) {
+            if (this.schemaOrgSchemas[test.schema].properties
+              && Array.isArray(this.schemaOrgSchemas[test.schema].properties)) {
 
-                var isPropertyAllowed = this.schemaOrgDefinitions[test.schema].properties.includes(test.property);
+                var isPropertyAllowed = this.schemaOrgSchemas[test.schema].properties.includes(test.property);
  
                 if (!isPropertyAllowed) {
                     error = {
@@ -217,9 +213,10 @@ module.exports = {
             }
 
             if (rangeValidation === null) {
+                success = true;
                 error = {
                     type: 'MAYBE_INVALID_SCHEMA_PROPERTY',
-                    message: 'No content validator found.'
+                    message: 'No data type validator found.'
                 }
             }
 
@@ -238,7 +235,7 @@ module.exports = {
         }
 
         return {
-            success: !error,
+            success: success !== null ? success : !error,
             value: value,
             error: error || false,
         };
@@ -311,7 +308,7 @@ module.exports = {
 
         }
 
-console.log('end of expect and still no error returned', value, test);
+// console.log('end of expect and still no error returned', value, test);
 
         return {
             type: 'INCORRECT_VALUE',
@@ -331,20 +328,17 @@ console.log('end of expect and still no error returned', value, test);
 
         if (result.success) {
 
-            this.response.passed.push(test);
+            this.response.passed.push(Object.assign({result:result},test));
 
         } else if (result.error) {
 
             if (test.optional) {
-                // this.response.optional.push(test);
                 this.response.optional.push(Object.assign({result:result},test));
             }
             else if (test.warning) {
-                // this.response.warnings.push(test);
                 this.response.warnings.push(Object.assign({result:result},test));
             }
             else {
-                // this.response.failed.push(test);
                 this.response.failed.push(Object.assign({result:result},test));
             }
 
@@ -401,7 +395,7 @@ console.log('end of expect and still no error returned', value, test);
 
     },
 
-    addSchemasToTests: async function(data, schemas, opts = {}) {
+    addSchemasToTests: function(data, schemas, opts = {}) {
 
         // recursive
 
@@ -425,12 +419,11 @@ console.log('end of expect and still no error returned', value, test);
 
             if (type) {
 
-                var schemaDefinition = await this.getSchemaOrgSchema(name);
-
-                if (schemaDefinition && data[type][prop]) {
+                if (this.schemaOrgSchemas[name] && data[type][prop]) {
 
                     if (Array.isArray(data[type][prop])) {
-                        data[type][prop].map(async (dataSet, index) => {
+
+                        data[type][prop].map( (dataSet, index) => {
 
                             var group = opts.group || `${name} #${index}`;
 
@@ -456,7 +449,7 @@ console.log('end of expect and still no error returned', value, test);
                                 options.parent = `${opts.parent}.${options.parent}`;
                             }
 
-                            await this.addSchemaPropertiesToTests(dataSet, options);
+                            this.addSchemaPropertiesToTests(dataSet, options);
 
                         });
                     }
@@ -478,7 +471,7 @@ console.log('end of expect and still no error returned', value, test);
                             options.parent = `${opts.parent}.${options.parent}`;
                         }
 
-                        await this.addSchemaPropertiesToTests(data[type][prop], options);
+                        this.addSchemaPropertiesToTests(data[type][prop], options);
 
                     }
 
@@ -490,13 +483,13 @@ console.log('end of expect and still no error returned', value, test);
 
     },
 
-    addSchemaPropertiesToTests: async function (dataSet, options) {
+    addSchemaPropertiesToTests: function (dataSet, options) {
 
         // recursive
 
         // add auto detected tests for schema.org properties
         // checks, if property is allowed in schema
-        // doesn't check, if property has valid contents
+        // partially checks, if property data type is valid
 
         var type       = options.type,
             schemaName = options.schemaName,
@@ -504,7 +497,7 @@ console.log('end of expect and still no error returned', value, test);
             group      = options.group,
             parent     = options.parent;
 
-        Object.keys(dataSet).map(async prop => {
+        Object.keys(dataSet).map( prop => {
 
             if (prop && prop != 'undefined' && prop != '@type' && prop != '@context' && prop != '@id') {
 
@@ -525,7 +518,7 @@ console.log('end of expect and still no error returned', value, test);
                         autoDetected: true,
                     }
 
-                    var propertyDefinition = await this.getSchemaOrgProperty(prop);
+                    var propertyDefinition = this.schemaOrgProperties[prop] || false;
 
                     if (propertyDefinition && propertyDefinition.rangeIncludes
                       && Array.isArray(propertyDefinition.rangeIncludes)) {
@@ -535,7 +528,7 @@ console.log('end of expect and still no error returned', value, test);
                     }
 
                     if (!propertyDefinition) {
-console.log('missing propertyDefinition', prop);
+// console.log('missing propertyDefinition', prop);
                     }
 
                     this.tests.push(test);
@@ -544,17 +537,17 @@ console.log('missing propertyDefinition', prop);
 
                 else if (Array.isArray(dataSet[prop])) {
 
-                    dataSet[prop].map(async (p, i) =>{
+                    dataSet[prop].map( (p, i) =>{
 
                         var opts = {
                             type:       type,
-                            schemaName: name,
+                            schemaName: schemaName,
                             index:      index,
                             group:      group,
                             parent:     `${parent}.\"${prop}\"[${i}]`
                         };
 
-                        await this.addSchemaPropertiesToTests(p, opts);
+                        this.addSchemaPropertiesToTests(p, opts);
 
                     });
 
@@ -578,21 +571,21 @@ console.log('missing propertyDefinition', prop);
                             group:  group,
                         };
 
-                        await this.addSchemasToTests(childData, [childSchema], opts);
+                        this.addSchemasToTests(childData, [childSchema], opts);
 
                     }
-                    
+
                     else {
 
                         var opts = {
                             type:       type,
-                            schemaName: name,
+                            schemaName: schemaName,
                             index:      index,
                             group:      group,
                             parent:     `${parent}.${prop}`
                         };
 
-                        await this.addSchemaPropertiesToTests(dataSet[prop], opts);
+                        this.addSchemaPropertiesToTests(dataSet[prop], opts);
                     }
 
                 }
@@ -777,7 +770,7 @@ console.log('missing propertyDefinition', prop);
 
         });
 
-if (!testPassed) console.log('validateSchemaOrgRange', value, test);
+// if (!testPassed) console.log('validateSchemaOrgRange', value, test);
 
         return testPassed ? testPassed : (!rangeTestExists ? null : false);
 
