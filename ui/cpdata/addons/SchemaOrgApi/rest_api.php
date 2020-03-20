@@ -37,12 +37,18 @@ $app->on('cockpit.rest.init', function($routes) {
 
     };
 
+    $routes['all'] = function() {
+
+        return $this->invoke('SchemaOrgApi\\Controller\\RestApi', 'all');
+
+    };
+
 });
 
 // allow access to public collections
 $app->on('cockpit.api.authenticate', function($data) {
 
-    if ($data['user'] || !in_array($data['resource'], ['schema', 'property', 'schemas', 'properties', 'schemaorg'])) return;
+    if ($data['user'] || !in_array($data['resource'], ['schema', 'property', 'schemas', 'properties', 'schemaorg', 'all'])) return;
 
     $collection = $this->module('collections')->collection('schema_types');
 

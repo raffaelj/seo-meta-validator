@@ -72,4 +72,13 @@ class RestApi extends \LimeExtra\Controller {
 
     }
 
+    public function all() {
+
+        return [
+            'schemas'    => $this->schemas(),
+            'properties' => $this->properties()
+        ];
+
+    }
+
 }
