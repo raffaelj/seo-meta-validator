@@ -21,23 +21,20 @@ Object.assign(App, MetaValidatorCore, {
     HTMLParser: HTMLParser,
     validator:  validator,
 
-    schemaOrgSchemas: {},
-    schemaOrgProperties: {},
-
     /**
      * Fetch Url and return html string
      *
      * @param   String  url
      * @return  String
      */
-    fetchUrl: async function(url) {
+    fetchUrl: async function (url) {
 
         return await this.request(url, null, 'html');
 
     },
 
     // preload all schemas and properties from api and save it to localStorage
-    preloadSchemaOrgData: function(fn) {
+    preloadSchemaOrgData: function (fn) {
 
         var $this = this;
 

@@ -10,14 +10,16 @@ const defaultPresets = Object.assign({
 
 module.exports = {
 
+    schemaOrgSchemas: {},
+    schemaOrgProperties: {},
+
+    MetaExtractor: MetaExtractor,
+    jmespath: jmespath,
+
+    defaultPresets: defaultPresets,
+
     url: '',
-
-    MetaExtractor:     MetaExtractor,
-    schemaValidator:   jmespath,
-
-    defaultPresets:    defaultPresets,
-
-    data:    {},
+    data: {},
 
     tests:   [],
     presets: [],
@@ -36,7 +38,7 @@ module.exports = {
         skipped:  [], // to do...
     },
 
-    init: function(options) {
+    init: function (options) {
 
         // flush data in case of rerun with the same MetaValidator instance
         this.flush();
@@ -73,7 +75,7 @@ module.exports = {
 
     },
 
-    run: async function(url, options) {
+    run: async function (url, options) {
 
         // preload schema data from api or from localStorage
         if (Object.keys(this.schemaOrgSchemas).length == 0) {
@@ -110,7 +112,7 @@ module.exports = {
 
     },
 
-    runTests: function(data) {
+    runTests: function (data) {
 
         data = data || this.data;
 
@@ -132,7 +134,7 @@ module.exports = {
 
     },
 
-    runSingleTest: function(test, data) {
+    runSingleTest: function (test, data) {
 
         // avoid running the same test multiple times
         if (test.hasOwnProperty(result)) return test.result;
@@ -169,14 +171,14 @@ module.exports = {
 
     },
 
-    validate: function(test, json) {
+    validate: function (test, json) {
 
         if (!test || !json || !test.test) return false;
 
         var error,
             success = null,
             path  = test.test,
-            value = this.schemaValidator.search(json, path);
+            value = this.jmespath.search(json, path);
 
         if (test.schema && test.property) {
 
@@ -242,7 +244,7 @@ module.exports = {
 
     },
 
-    validateAny: function(test, json) {
+    validateAny: function (test, json) {
 
         var result = null;
 
@@ -258,7 +260,7 @@ module.exports = {
 
     // return error message if the value doesn't match expactation
     // returns false if value matches expactation
-    compareWithExpectedValue: function(value, test) {
+    compareWithExpectedValue: function (value, test) {
 
         var path = test.test;
 
@@ -319,7 +321,7 @@ module.exports = {
 
     },
 
-    formatResponse: function(result, test) {
+    formatResponse: function (result, test) {
 
         if (!result) {
             this.response.failed.push(test);
@@ -368,7 +370,7 @@ module.exports = {
 
     },
 
-    addMetaTagsToTests: function(data) {
+    addMetaTagsToTests: function (data) {
 
         // seems to be useless - only a self test on existing data
 
@@ -395,7 +397,7 @@ module.exports = {
 
     },
 
-    addSchemasToTests: function(data, schemas, opts = {}) {
+    addSchemasToTests: function (data, schemas, opts = {}) {
 
         // recursive
 
@@ -785,19 +787,19 @@ module.exports = {
 
     _events: {},
 
-    on: function(name, fn){
+    on: function (name, fn){
         if (!this._events[name]) this._events[name] = [];
         this._events[name].push(fn);
     },
 
-    off: function(name, fn){
+    off: function (name, fn){
         if (!this._events[name]) return;
 
         if (!fn) {
            this._events[name] = [];
         } else {
 
-            for (var i=0; i < this._events[name].length; i++) {
+            for (var i = 0; i < this._events[name].length; i++) {
                 if (this._events[name][i]===fn) {
                     this._events[name].splice(i, 1);
                     break;
@@ -806,13 +808,13 @@ module.exports = {
         }
     },
 
-    trigger: function(name, params) {
+    trigger: function (name, params) {
 
         if (!this._events[name]) return;
 
         var event = {"name":name, "params": params};
 
-        for (var i=0; i < this._events[name].length; i++) {
+        for (var i = 0; i < this._events[name].length; i++) {
             this._events[name][i].apply(this, [event]); // replaced `App` with `this`
         }
     },
