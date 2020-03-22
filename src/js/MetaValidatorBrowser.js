@@ -11,6 +11,9 @@ var MetaValidatorCore = require('./MetaValidatorCore.js');
 
 Object.assign(App, MetaValidatorCore, {
 
+    // will be replaced with package version via browserify-versionify transform
+    version: '__VERSION__',
+
     // defaults to current url if window object exists (for bookmarklet usage)
     url: typeof window != 'undefined' && window.location ? window.location.toString() : '',
 
