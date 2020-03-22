@@ -17,7 +17,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-2',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
@@ -35,13 +35,31 @@
       'options' => 
       array (
       ),
-      'width' => '1-2',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
     2 => 
+    array (
+      'name' => 'pending',
+      'label' => '',
+      'type' => 'boolean',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-3',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    3 => 
     array (
       'name' => 'comment',
       'label' => '',
@@ -60,44 +78,49 @@
       array (
       ),
     ),
-    3 => 
+    4 => 
     array (
       'name' => 'subTypeOf',
       'label' => '',
-      'type' => 'tags',
+      'type' => 'collectionlink',
       'default' => '',
       'info' => '',
       'group' => '',
       'localize' => false,
       'options' => 
       array (
-        'link' => '',
+        'link' => 'schema_types_linked',
+        'multiple' => true,
+        'display' => 'id',
       ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-    ),
-    4 => 
-    array (
-      'name' => 'enumerationtype',
-      'label' => '',
-      'type' => 'tags',
-      'default' => '',
-      'info' => '',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
     5 => 
+    array (
+      'name' => 'enumerationtype',
+      'label' => '',
+      'type' => 'collectionlink',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+        'link' => 'schema_types_linked',
+        'multiple' => true,
+        'display' => 'id',
+      ),
+      'width' => '1-3',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    6 => 
     array (
       'name' => 'equivalentClass',
       'label' => '',
@@ -109,13 +132,13 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
-    6 => 
+    7 => 
     array (
       'name' => 'properties',
       'label' => '',
@@ -127,13 +150,13 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
-    7 => 
+    8 => 
     array (
       'name' => 'subTypes',
       'label' => '',
@@ -148,13 +171,13 @@
         'multiple' => true,
         'display' => 'id',
       ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
-    8 => 
+    9 => 
     array (
       'name' => 'supersedes',
       'label' => '',
@@ -166,13 +189,13 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
-    9 => 
+    10 => 
     array (
       'name' => 'supersededBy',
       'label' => '',
@@ -184,13 +207,13 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
-    10 => 
+    11 => 
     array (
       'name' => 'isPartOf',
       'label' => '',
@@ -202,25 +225,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-    ),
-    11 => 
-    array (
-      'name' => 'pending',
-      'label' => '',
-      'type' => 'boolean',
-      'default' => '',
-      'info' => '',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
@@ -230,7 +235,7 @@
   'sortable' => false,
   'in_menu' => false,
   '_created' => 1584054275,
-  '_modified' => 1584568442,
+  '_modified' => 1584815212,
   'color' => '#FFCE54',
   'acl' => 
   array (
