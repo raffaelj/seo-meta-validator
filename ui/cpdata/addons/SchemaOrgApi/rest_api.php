@@ -43,25 +43,70 @@ $app->on('cockpit.rest.init', function($routes) {
 
     };
 
+    $routes['fetch'] = function() {
+
+        // very simple scraper
+
+        $url = $this->param('url', null);
+
+        $error = null;
+        $html = null;
+        $headers = null;
+
+        if (!$url) return ['error' => 'Url parameter missing'];
+
+        $_url = \parse_url($url);
+
+        if (!isset($_url['scheme']) || !in_array($_url['scheme'], ['http', 'https'])) {
+            return ['error' => 'Url must be absolute and start with http(s)://'];
+        }
+
+        $headers = @\get_headers($url, 1);
+
+        if ($headers && is_array($headers)) {
+            $_headers = [];
+
+            for ($i = 0; isset($headers[$i]); $i++) {
+
+                $_headers[$i] = [
+                    '_response_code' => (int) substr($headers[$i], 9, 3),
+                    '_protocol' => substr($headers[$i], 0, 8),
+                ];
+
+                foreach($headers as $k => $v) {
+                    if (is_numeric($k)) continue;
+
+                    if (is_string($v) && $i === 0) {
+                        $_headers[$i][$k] = $v;
+                    }
+                    else if (is_array($v) && isset($v[$i])) {
+                        $_headers[$i][$k] = $v[$i];
+                    }
+                }
+            }
+            $headers = $_headers;
+        }
+
+        try {
+            $html = @\file_get_contents($url);
+            if ($html === false) $error = \error_get_last();
+        }
+        catch (\Exception $e) {
+            $error = $e->getMessage();
+        }
+
+        return compact('error', 'headers', 'html');
+
+    };
+
 });
 
-// allow access to public collections
+// allow public access to schema shortcuts
 $app->on('cockpit.api.authenticate', function($data) {
 
-    if ($data['user'] || !in_array($data['resource'], ['schema', 'property', 'schemas', 'properties', 'schemaorg', 'all'])) return;
+    if ($data['user'] || !in_array($data['resource'], ['schema', 'property', 'schemas', 'properties', 'schemaorg', 'all', 'fetch'])) return;
 
-    $collection = $this->module('collections')->collection('schema_types');
-
-    if ($collection && isset($collection['acl']['public'])) {
-        $data['authenticated'] = true;
-        $data['user'] = ['_id' => null, 'group' => 'public'];
-    }
-
-    $collection = $this->module('collections')->collection('schema_properties');
-
-    if ($collection && isset($collection['acl']['public'])) {
-        $data['authenticated'] = true;
-        $data['user'] = ['_id' => null, 'group' => 'public'];
-    }
+    $data['authenticated'] = true;
+    $data['user'] = ['_id' => null, 'group' => 'public'];
 
 });

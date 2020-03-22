@@ -101,9 +101,16 @@ module.exports = {
         this.init(options);
 
         var html = options && options.html ? options.html
-                   : await this.fetchUrl(url, null, 'html');
+                  : await this.fetchUrl(url, null, 'html')
+                      .catch (e => { console.log(e); });
 
-        this.MetaExtractor.html = this.HTMLParser.parse(html);
+        if (typeof html == 'string') {
+            this.MetaExtractor.html = this.HTMLParser.parse(html);
+        } else if (typeof html == 'object' && html.constructor.name == 'HTMLDocument') {
+            this.MetaExtractor.html = html;
+        } else {
+            console.log('unexpected html format');
+        }
 
         this.data = this.MetaExtractor.extract();
 

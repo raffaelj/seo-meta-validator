@@ -21,6 +21,8 @@ Object.assign(App, MetaValidatorCore, {
     // use hard coded api url while developing (also to not break bookmarklet usage)
     schemaOrgApiUrl: 'http://localhost/seo-meta-validator/ui/api',
 
+    requestProxy: 'http://localhost/seo-meta-validator/ui/api/fetch',
+
     HTMLParser: HTMLParser,
     validator:  validator,
 
@@ -28,11 +30,38 @@ Object.assign(App, MetaValidatorCore, {
      * Fetch Url and return html string
      *
      * @param   String  url
-     * @return  String
+     * @return  Mixed
      */
-    fetchUrl: async function (url) {
+    fetchUrl: async function (url, data, type = 'html') {
 
-        return await this.request(url, null, 'html');
+        // bookmarklet usage - no request needed
+        if (window.location == url) {
+            return document; // HTMLDocument
+        }
+
+        var crossOrigin = (this.route(url)).match(/^http/)
+            && !(this.route(url)).match(new RegExp(`^${this.site_url}`));
+
+        // different origin? If yes, use proxy for server side fetching
+        // to prevent being blocked by CORS
+        if (crossOrigin && this.requestProxy) {
+
+            if (!data || typeof data != 'object') data = {};
+
+            data.url = url;
+            url      = this.requestProxy;
+            type     = 'json';
+
+        }
+
+        var response = await this.request(url, data, type);
+
+        if (typeof response == 'string') return response; // html string
+
+        if (typeof response == 'object') {
+            this.response.headers = response.headers;
+            return response.html; // html string
+        }
 
     },
 

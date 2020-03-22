@@ -10,6 +10,7 @@ var App = {
 
     base_route: typeof window != 'undefined' ? window.location.pathname.replace(/\/$/, '') : '',
     base_url:   typeof window != 'undefined' ? window.location.pathname.replace(/\/$/, '') : '',
+    site_url:   typeof window != 'undefined' ? window.location.origin : '',
 
     route: function(url) {
 
