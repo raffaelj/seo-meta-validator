@@ -91,6 +91,23 @@ module.exports = function() {
             urlInput.type  = 'text';
             urlInput.name  = 'url';
             urlInput.value = this.url;
+
+            // add buttons with test urls to form
+            if (this.testUrls) {
+                var testUrlFieldset = document.createElement('fieldset');
+                Object.keys(this.testUrls).forEach(k => {
+                    var testUrlButton = document.createElement('button');
+                    testUrlButton.value = this.testUrls[k];
+                    testUrlButton.innerText = k;
+                    testUrlButton.type = 'submit';
+                    testUrlButton.addEventListener('click', (e) => {
+                        urlInput.value = testUrlButton.value;
+                    });
+                    testUrlFieldset.appendChild(testUrlButton);
+                });
+                form.appendChild(testUrlFieldset);
+            }
+
             form.appendChild(urlInput);
         }
 
@@ -220,7 +237,7 @@ module.exports = function() {
 
         if (total) {
             output += '<div>';
-            output += `<p><b>${name}</b> - ${percentPassed}% (${group.passed.length} passed, ${group.failed.length} failed)</p>`;
+            output += `<p><b>${name}</b><br>${percentPassed}% (${group.passed.length} passed, ${group.failed.length} failed)</p>`;
 
             ['passed', 'failed', 'warnings', 'optional'].forEach(responseType => {
                 output += `<ul>`;
@@ -230,7 +247,11 @@ module.exports = function() {
                         output += `<li class="metavalidator-${responseType}" title="${quote(test.test)}">${test.description || test.test}`;
 
                         if (test.result && test.result.error) {
-                            output += `<b class="info" title="${quote(test.result.error.message || test.result.error.type)}"> (i)</b>`;
+                            output += `<b class="info" title="${quote(test.result.error.message || test.result.error.type)}"> (e)</b>`;
+                        }
+
+                        if (test.result && test.result.warning) {
+                            output += `<b class="info" title="${quote(test.result.warning.message || test.result.warning.type)}"> (w)</b>`;
                         }
 
                         output += `</li>`;
