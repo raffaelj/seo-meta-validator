@@ -10,13 +10,23 @@ const argv = require('yargs')
     description: 'Inspect a URL',
     required: true
 })
+.option('presets', {
+    alias: 'p',
+    type: 'string',
+    description: 'Test for specific markup from a list of presets'
+})
 .argv;
 
 var url = argv.url;
 
 var options = {
-    presets: ['Google', 'Twitter', 'Facebook']
+    autodetect: true,
 };
+
+if (argv.presets) {
+    options.presets = typeof argv.presets == 'string'
+        ? argv.presets.split(',').map(e => e.trim()) : argv.presets;
+}
 
 // pass cli output function to finish event
 MetaValidator.on('finished', temporaryCliOutput);
