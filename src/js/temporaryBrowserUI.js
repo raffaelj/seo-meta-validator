@@ -92,22 +92,6 @@ module.exports = function() {
             urlInput.name  = 'url';
             urlInput.value = this.url;
 
-            // add buttons with test urls to form
-            if (this.testUrls) {
-                var testUrlFieldset = document.createElement('fieldset');
-                Object.keys(this.testUrls).forEach(k => {
-                    var testUrlButton = document.createElement('button');
-                    testUrlButton.value = this.testUrls[k];
-                    testUrlButton.innerText = k;
-                    testUrlButton.type = 'submit';
-                    testUrlButton.addEventListener('click', (e) => {
-                        urlInput.value = testUrlButton.value;
-                    });
-                    testUrlFieldset.appendChild(testUrlButton);
-                });
-                form.appendChild(testUrlFieldset);
-            }
-
             form.appendChild(urlInput);
         }
 
@@ -169,6 +153,22 @@ module.exports = function() {
         });
 
         form.appendChild(presetFieldset);
+
+        // add buttons with test urls to form
+        if (this.testUrls) {
+            var testUrlFieldset = document.createElement('fieldset');
+            Object.keys(this.testUrls).forEach(k => {
+                var testUrlButton = document.createElement('button');
+                testUrlButton.value = this.testUrls[k];
+                testUrlButton.innerText = k;
+                testUrlButton.type = 'submit';
+                testUrlButton.addEventListener('click', (e) => {
+                    urlInput.value = testUrlButton.value;
+                });
+                testUrlFieldset.appendChild(testUrlButton);
+            });
+            form.appendChild(testUrlFieldset);
+        }
 
         container.appendChild(form);
     }
