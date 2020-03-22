@@ -214,8 +214,18 @@ module.exports = function() {
     // output += `<p><b>Url:</b> ${this.url}</p>`;
     output += '<table>';
 
+    // if redirects where traced while fetching, display them
+    if (this.response.headers && this.response.headers.length > 1) {
+        var title = [];
+        this.response.headers.map(h => {
+            if (h.Location) title.push(h.Location);
+        });
+        title = title.join(' &gt; ');
+        output += '<tr title="'+title+'"><th>Number of redirects:</th><td>' + (this.response.headers.length - 1) + '</td></tr>';
+    }
+
     output += '<tr><th>Number of Tests:</th><td>'    + (response.tests.length) + '</td></tr>';
-    output += '<tr><th>Number of Metatags:</th><td>' + (Object.keys(this.data.metatags).length || 0) + '</td></tr>';
+    output += '<tr><th>Number of metatags:</th><td>' + (Object.keys(this.data.metatags).length || 0) + '</td></tr>';
     output += '<tr><th>Schemas in JSON-LD:</th><td>' + (Object.keys(this.data.jsonld).length || 0) + '</td></tr>';
     output += '<tr><th>Optional tests:</th><td>'     + response.optional.length + '</td></tr>';
     // ...
