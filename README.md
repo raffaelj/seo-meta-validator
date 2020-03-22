@@ -77,22 +77,29 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
 ### general/bugs
 
 * [ ] SEO preset
+  * [x] length checks for title, description
+  * [x] length checks for og:title, og:description
+  * [x] length checks for twitter:title, twitter:description
+  * [] ...
 * [ ] validate schemas
+  * [ ] allowed properties (fails for strings that should be parsed as object, e. g. `"author": "A. Smith"` should be parsed as `"author": {"@type":"Thing","name":"A. Smith"}`)
+  * [ ] invalid properties (data type validation) - partially implemented
+  * [ ] ...
 * [ ] microdata/rdfa parser schould match spec
 * [ ] check for valid url
-* [ ] avoid running the same test multiple times (e. g. preset "Default" & "Google" or "SocialMedia" & Twitter)
-* [x] entry point with differnt DOMParser for node/cli usage
+* [x] avoid running the same preset tests multiple times (e. g. preset "Default" & "Google")
+* [x] entry point with different DOMParser for node/cli usage
 * [ ] babel, polyfills...
 * [ ] metatags should be grouped (e. g. og with multiple og images)
 * [ ] performance tests/optimization
 * [ ] catch error if url is not parsable
 * [ ] self tests
-* [ ] single tests should have conditionals (currently only presets have conditionals)
+* [x] single tests should have conditionals (currently only presets have conditionals)
 * [ ] presets should have multiple conditionals (currently only one conditional test is possible) - some data has multiple fallbacks, e.g. if no `twitter:title` is present, Twitter will fallback to `og:title`
 
 ### mini browser ui
 
-* [ ] Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource
+* [ ] Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource --> use optional api proxi with server side url fetching
 
 ### bookmarklet
 

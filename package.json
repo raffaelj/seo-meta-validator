@@ -1,6 +1,6 @@
 {
     "name": "seo-meta-validator",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "author": "Raffael Jesche",
     "license": "MIT",
     "description": "Validate structured data like jsonld of html documents - work in progress",
