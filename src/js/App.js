@@ -15,7 +15,7 @@ var App = {
 
         if (url.indexOf('http') == 0 || url.indexOf('//') == 0) return url;
 
-        return this.base_route + url;
+        return this.base_route + '/' + url.replace(/^\//, '');
 
     },
     
