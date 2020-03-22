@@ -18,6 +18,15 @@ module.exports = {
 
     defaultPresets: defaultPresets,
 
+    dataTypes: [
+        'Date',
+        'DateTime',
+        'Text',
+        'Integer',
+        'URL',
+        'Boolean',
+    ],
+
     url: '',
     data: {},
 
@@ -137,7 +146,9 @@ module.exports = {
     runSingleTest: function (test, data) {
 
         // avoid running the same test multiple times
-        if (test.hasOwnProperty(result)) return test.result;
+        if (test.result) {
+            return test.result;
+        }
 
         data = data || this.data;
 
@@ -176,6 +187,7 @@ module.exports = {
         if (!test || !json || !test.test) return false;
 
         var error,
+            warning,
             success = null,
             path  = test.test,
             value = this.jmespath.search(json, path);
@@ -183,18 +195,46 @@ module.exports = {
         if (test.schema && test.property) {
 
             // compare allowed properties
-            if (this.schemaOrgSchemas[test.schema].properties
-              && Array.isArray(this.schemaOrgSchemas[test.schema].properties)) {
 
-                var isPropertyAllowed = this.schemaOrgSchemas[test.schema].properties.includes(test.property);
- 
-                if (!isPropertyAllowed) {
-                    error = {
-                        type: 'PROPERTY_NOT_ALLOWED',
-                        message: 'Property is not allowed in schema'
-                    };
+            var properties = this.getSchemaOrgSchemaProperties(test.schema);
+
+            var isPropertyAllowed = false,
+                isPropertyPending = false;
+
+            if (properties && Array.isArray(properties)) {
+
+                isPropertyAllowed = properties.includes(test.property);
+
+            }
+
+            if (this.schemaOrgProperties[test.property]
+              && this.schemaOrgProperties[test.property].domainIncludes
+              && Array.isArray(this.schemaOrgProperties[test.property].domainIncludes)) {
+
+                if (this.schemaOrgProperties[test.property].domainIncludes.includes(test.schema)) {
+
+                    if (this.schemaOrgProperties[test.property].pending) {
+                        isPropertyPending = true;
+                    }
+
+                    isPropertyAllowed = true;
+
                 }
 
+            }
+
+            if (!isPropertyAllowed && !isPropertyPending) {
+                error = {
+                    type: 'PROPERTY_NOT_ALLOWED',
+                    message: `Property is not allowed in schema ${test.schema}`
+                };
+            }
+
+            if (isPropertyPending) {
+                warning = {
+                    type: 'PROPERTY_IS_PENDING',
+                    message: 'Property is pending'
+                };
             }
 
         }
@@ -210,13 +250,13 @@ module.exports = {
             if (rangeValidation === false) {
                 error = {
                     type: 'INVALID_SCHEMA_PROPERTY',
-                    message: 'Content type is not allowed in schema property'
+                    message: 'Data type is not allowed in schema property'
                 }
             }
 
             if (rangeValidation === null) {
                 success = true;
-                error = {
+                warning = {
                     type: 'MAYBE_INVALID_SCHEMA_PROPERTY',
                     message: 'No data type validator found.'
                 }
@@ -240,6 +280,7 @@ module.exports = {
             success: success !== null ? success : !error,
             value: value,
             error: error || false,
+            warning: warning || false,
         };
 
     },
@@ -520,6 +561,9 @@ module.exports = {
                         autoDetected: true,
                     }
 
+                    // to do...
+                    // var rangeIncludes = this.getSchemaOrgPropertyRangeIncludes(prop);
+
                     var propertyDefinition = this.schemaOrgProperties[prop] || false;
 
                     if (propertyDefinition && propertyDefinition.rangeIncludes
@@ -530,6 +574,7 @@ module.exports = {
                     }
 
                     if (!propertyDefinition) {
+                        // to do...
 // console.log('missing propertyDefinition', prop);
                     }
 
@@ -775,6 +820,55 @@ module.exports = {
 // if (!testPassed) console.log('validateSchemaOrgRange', value, test);
 
         return testPassed ? testPassed : (!rangeTestExists ? null : false);
+
+    },
+
+    getSchemaOrgSchemaProperties: function (schemaName) {
+
+        // recursive
+        // doesn't find pending properties
+
+        if (!this.schemaOrgSchemas[schemaName]) return null;
+
+        var properties = [];
+
+        if (this.schemaOrgSchemas[schemaName].properties) {
+
+            properties = properties.concat(this.schemaOrgSchemas[schemaName].properties);
+
+        }
+
+        // inherit properties from parent schema(s)
+
+        if (this.schemaOrgSchemas[schemaName].subTypeOf
+          && Array.isArray(this.schemaOrgSchemas[schemaName].subTypeOf)) {
+
+            this.schemaOrgSchemas[schemaName].subTypeOf.map(e => {
+
+                var inheritedProperties = this.getSchemaOrgSchemaProperties(e);
+
+                if (inheritedProperties) {
+                    properties = properties.concat(inheritedProperties);
+                }
+
+            });
+
+        }
+
+        return properties.length ? properties : false;
+
+    },
+
+    // to do...
+    getSchemaOrgPropertyRangeIncludes: function (propertyName) {
+
+        if (!this.schemaOrgProperties[propertyName]) return null;
+
+        if (this.schemaOrgProperties[propertyName].rangeIncludes) {
+
+console.log(propertyName, this.schemaOrgProperties[propertyName].rangeIncludes);
+
+        }
 
     },
 
