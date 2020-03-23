@@ -38,6 +38,7 @@ module.exports = {
     presetsInUse: [],
 
     autodetect: false,
+    strict: false,
 
     response: {
         passed:   [],
@@ -52,34 +53,17 @@ module.exports = {
         // flush data in case of rerun with the same MetaValidator instance
         this.flush();
 
-        // to do:
-        // * change base_url
-        // * change Parser
-        // * display info
-        // * ...
-
+        // overwrite defaults with options
         if (options && typeof options == 'object') {
-
-            this.autodetect = options.autodetect || false;
-
-            if (options.tests && Array.isArray(options.tests)) {
-                this.tests = this.tests.concat(options.tests);
-            }
-
-            if (options.presets && Array.isArray(options.presets)) {
-                this.presets = this.presets.concat(options.presets);
-            }
-
-            if (options.schemas && Array.isArray(options.schemas)) {
-                this.schemas = this.schemas.concat(options.schemas);
-            }
-
+            Object.keys(options).forEach(o => {
+                if (typeof this[o] === typeof options[o]) this[o] = options[o];
+            });
         }
 
         if (!this.autodetect && !this.tests.length
           && !this.presets.length && !this.schemas.length) {
 
-            this.presets.push(this.defaultPresets.Default);
+            this.presets = ['Default'];
         }
 
     },
@@ -116,7 +100,9 @@ module.exports = {
         
         // reformat some short hand properties, that should be child schemas
         // to do: cleaner implementation
-        this.data = this.lazyReformatSomePropertyStringsToObjects();
+        if (!this.strict) {
+            this.data = this.lazyReformatSomePropertyStringsToObjects();
+        }
 
         if (this.autodetect) {
             this.addAutoDetectedTests();
