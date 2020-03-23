@@ -236,26 +236,25 @@ module.exports = {
 
         }
 
-        if (test.schema && test.range) {
+        if (test.schema && test.hasOwnProperty('range')) {
 
             // returns null if no schema content type validator found
             // returns true/false if the content type validation passes/fails
-            rangeValidation = this.validateSchemaOrgRange(value, test);
+            rangeValidation = !test.range ? test.range : this.validateSchemaOrgRange(value, test.range);
 
-// console.log(rangeValidation, value, test.type, test.schema, test.range);
+            var ranges = Array.isArray(test.range) ? test.range.join(' or ') : 'unknown';
 
             if (rangeValidation === false) {
                 error = {
-                    type: 'INVALID_SCHEMA_PROPERTY',
-                    message: 'Data type is not allowed in schema property'
+                    type: 'INVALID_DATA_TYPE',
+                    message: `Invalid data type. ${typeof value} given, expected: ${ranges}`
                 }
             }
 
             if (rangeValidation === null) {
-                success = true;
-                warning = {
-                    type: 'MAYBE_INVALID_SCHEMA_PROPERTY',
-                    message: 'No data type validator found.'
+                error = {
+                    type: 'MAYBE_INVALID_DATA_TYPE',
+                    message: `Invalid data type. ${typeof value} given, expected: ${ranges}`
                 }
             }
 
@@ -560,6 +559,7 @@ module.exports = {
 
                     // to do...
                     // var rangeIncludes = this.getSchemaOrgPropertyRangeIncludes(prop);
+                    // test.range = rangeIncludes;
 
                     var propertyDefinition = this.schemaOrgProperties[prop] || false;
 
@@ -570,10 +570,10 @@ module.exports = {
 
                     }
 
-                    if (!propertyDefinition) {
-                        // to do...
+                    // to do...
+                    // if (!propertyDefinition) {
 // console.log('missing propertyDefinition', prop);
-                    }
+                    // }
 
                     this.tests.push(test);
 
@@ -794,18 +794,21 @@ module.exports = {
 
     },
 
-    validateSchemaOrgRange: function (value, test) {
+    validateSchemaOrgRange: function (value, range) {
+
+        if (!Array.isArray(range)) return null;
 
         var rangeTestExists = true;
 
-        var testPassed = test.range.some(range => {
+        var testPassed = range.some(r => {
 
-            switch (range) {
+            switch (r) {
                 case 'URL':         return this.validator.isURL(value, {require_tld: false});           break;
                 case 'Date':        // to do: different checks!!!
                 case 'DateTime':    return this.validator.isISO8601(value);       break;
                 case 'Text':        return typeof value === 'string';             break;
                 case 'Integer':     return typeof value === 'number';             break;
+                case 'Boolean':     return typeof value === 'boolean';            break;
             }
 
             rangeTestExists = false;
@@ -855,20 +858,31 @@ module.exports = {
         return properties.length ? properties : false;
 
     },
-
+/* 
     // to do...
-    // getSchemaOrgPropertyRangeIncludes: function (propertyName) {
+    getSchemaOrgPropertyRangeIncludes: function (propertyName) {
 
-        // if (!this.schemaOrgProperties[propertyName]) return null;
+        if (!this.schemaOrgProperties[propertyName]) return null;
 
-        // if (this.schemaOrgProperties[propertyName].rangeIncludes) {
+        if (this.schemaOrgProperties[propertyName].rangeIncludes
+          && Array.isArray(this.schemaOrgProperties[propertyName].rangeIncludes)) {
 
-// console.log(propertyName, this.schemaOrgProperties[propertyName].rangeIncludes);
+            var isDataType = this.schemaOrgProperties[propertyName].rangeIncludes.some(r => {
+                return this.dataTypes.includes(r);
+            });
 
-        // }
+            if (isDataType) return this.schemaOrgProperties[propertyName].rangeIncludes;
 
-    // },
+            // try to find a parent, that might have a data type...?
 
+// console.log(propertyName, isDataType, this.schemaOrgProperties[propertyName].rangeIncludes);
+
+        }
+
+        return false;
+
+    },
+*/
     lazyReformatSomePropertyStringsToObjects: function (data) {
 
         data = data || this.data;

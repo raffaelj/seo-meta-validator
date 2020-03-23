@@ -69,7 +69,7 @@ module.exports = function() {
             if (e) e.preventDefault();
 
             var url = '',
-                options = {presets:[], autodetect: false},
+                options = {presets:[], autodetect: false, strict: false},
                 data = new FormData(form);
 
             var entries = data.entries(), entry = entries.next();
@@ -77,6 +77,7 @@ module.exports = function() {
 
                 if (entry.value[0] == 'url')        url = entry.value[1];
                 if (entry.value[0] == 'autodetect') options.autodetect = true;
+                if (entry.value[0] == 'strict')     options.strict = true;
                 if (entry.value[0] == 'presets[]')  options.presets.push(entry.value[1]);
 
                 entry = entries.next();
@@ -109,6 +110,20 @@ module.exports = function() {
         var label    = document.createElement('label');
         label.setAttribute('for', 'metavalidator-autodetect');
         label.innerText = 'Autodetect';
+
+        form.appendChild(checkbox);
+        form.appendChild(label);
+
+        var checkbox     = document.createElement('input');
+        checkbox.type    = 'checkbox';
+        checkbox.name    = `strict`;
+        checkbox.id      = 'metavalidator-strict';
+        checkbox.value   = 1;
+        checkbox.checked = this.strict;
+
+        var label    = document.createElement('label');
+        label.setAttribute('for', 'metavalidator-strict');
+        label.innerText = 'Strict';
 
         form.appendChild(checkbox);
         form.appendChild(label);

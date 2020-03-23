@@ -15,13 +15,23 @@ const argv = require('yargs')
     type: 'string',
     description: 'Test for specific markup from a list of presets'
 })
+.option('autodetect', {
+    alias: 'a',
+    type: 'boolean',
+    description: 'Autodetect'
+})
+.option('strict', {
+    alias: 's',
+    type: 'boolean',
+    description: 'Strict parsing (default: false)'
+})
 .argv;
 
-var url = argv.url;
+var url     = argv.url;
+var options = {};
 
-var options = {
-    autodetect: true,
-};
+if (argv.hasOwnProperty('autodetect')) options.autodetect = argv.autodetect;
+if (argv.hasOwnProperty('strict'))     options.strict = argv.strict;
 
 if (argv.presets) {
     options.presets = typeof argv.presets == 'string'

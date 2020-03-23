@@ -37,8 +37,11 @@ foreach (cockpit()('fs')->ls('*.html', __DIR__ . '/test') as $file) {
 
             var url = '/test/example.html';
 
+            //url = '/test/invalid-properties.html';
+
             var options = {
                 autodetect: true,
+                //strict: true,
                 //presets: ['Default', 'Google'],
                 //presets: ['Default', 'SEO', 'Google', 'Twitter', 'Facebook'],
             };
