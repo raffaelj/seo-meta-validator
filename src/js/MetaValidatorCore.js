@@ -113,6 +113,10 @@ module.exports = {
         }
 
         this.data = this.MetaExtractor.extract();
+        
+        // reformat some short hand properties, that should be child schemas
+        // to do: cleaner implementation
+        this.data = this.lazyReformatSomePropertyStringsToObjects();
 
         if (this.autodetect) {
             this.addAutoDetectedTests();
@@ -867,15 +871,68 @@ module.exports = {
     },
 
     // to do...
-    getSchemaOrgPropertyRangeIncludes: function (propertyName) {
+    // getSchemaOrgPropertyRangeIncludes: function (propertyName) {
 
-        if (!this.schemaOrgProperties[propertyName]) return null;
+        // if (!this.schemaOrgProperties[propertyName]) return null;
 
-        if (this.schemaOrgProperties[propertyName].rangeIncludes) {
+        // if (this.schemaOrgProperties[propertyName].rangeIncludes) {
 
-console.log(propertyName, this.schemaOrgProperties[propertyName].rangeIncludes);
+// console.log(propertyName, this.schemaOrgProperties[propertyName].rangeIncludes);
 
-        }
+        // }
+
+    // },
+
+    lazyReformatSomePropertyStringsToObjects: function (data) {
+
+        data = data || this.data;
+
+        Object.keys(data).forEach(type => {
+
+            if (!['jsonld', 'microdata', 'rdfa'].includes(type)) {
+                return;
+            }
+
+            Object.keys(data[type]).forEach(key => {
+
+                data[type][key].forEach(d => {
+
+                    Object.keys(d).forEach(k => {
+
+                        if (k == '@context' || k == '@type') return;
+
+                        var propertySchema = this.schemaOrgProperties[k] || false;
+
+                        if (propertySchema && propertySchema.rangeIncludes) {
+
+                            var shouldBeObject = !propertySchema.rangeIncludes.some(e => {
+                                return this.dataTypes.includes(e);
+                            });
+
+                            if (typeof d[k] == 'string' && shouldBeObject) {
+
+                                // default value to name
+                                // to do: check, if it is a Thing or something else and if the property name is allowed 
+
+                                d[k] = {
+                                    '@type': 'Thing',
+                                    '@context': d['@context'],
+                                    'name': d[k]
+                                };
+
+                            }
+
+                        }
+
+                    });
+
+                });
+
+            });
+
+        });
+
+        return data;
 
     },
 
