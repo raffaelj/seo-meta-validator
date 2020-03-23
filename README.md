@@ -104,7 +104,7 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
   * [x] length checks for title, description
   * [x] length checks for og:title, og:description
   * [x] length checks for twitter:title, twitter:description
-  * [] ...
+  * [ ] ...
 * [ ] validate schemas
   * [ ] allowed properties (fails for strings that should be parsed as object, e. g. `"author": "A. Smith"` should be parsed as `"author": {"@type":"Thing","name":"A. Smith"}`)
   * [ ] invalid properties (data type validation) - partially implemented
@@ -123,18 +123,18 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
 
 ### mini browser ui
 
-* [ ] Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource --> use optional api proxi with server side url fetching
+* [x] Cross-Origin Request Blocked: The Same Origin Policy disallows reading the remote resource --> use optional api proxi with server side url fetching
 
 ### bookmarklet
 
-* [ ] bookmarklet fails sometimes through Content Security Policy
+* [ ] bookmarklet fails sometimes through Content Security Policy --> use a full bundle, that also includes schemas - should work, because than only one script is added via browser
 * [ ] more explicit styles because it shares it's styles with the tested website
 
 ### sdtt behaviour
 
 * [ ] cli
 * [ ] groups
-* [.] multiple schema instances
+* [ ] multiple schema instances
 * [ ] number of tests doesn't match
 * [ ] load schemas
 * [ ] auto detected tests are disabled
