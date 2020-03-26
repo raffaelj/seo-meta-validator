@@ -101,25 +101,6 @@ $this->module('schemaorgapi')->extend([
 
     },
 
-    'copyCollection' => function($collection) {
-
-        $time = time();
-
-        // copy collection to linked collection
-        foreach ($this->app->module('collections')->find($collection) as &$entry) {
-
-            unset($entry['_id']);
-
-            $this->app->module('collections')->save($collection . '_linked', $entry);
-
-        }
-
-        $seconds = time() - $time;
-
-        return ['message' => "Copied $collection to linked collection in $seconds seconds"];
-
-    },
-
     'downloadSchemas' => function() {
 
         $uploadPath = $this->app->path('#uploads:schemas');
