@@ -14,6 +14,25 @@ Open your command line and navigate to your Cockpit root. In the case of the seo
 ./cp schemaorgapi/import
 ```
 
+## REST API endpoints
+
+All api endpoints are public! I'll change that later...
+
+```
+/**
+ * api shortcuts - If you want to use filters, you have to use the collections api
+ *
+ * /api/schemas/schema/schemaName         @return Object  single schema
+ * /api/schemas/property/propertyName     @return Object  single property
+ * /api/schemas/schemas                   @return Object  all schemas
+ * /api/schemas/properties                @return Object  all properties
+ * /api/schemas/all                       @return Object  schemas + properties
+ * /api/schemas/subset                    @return Object  subset of schemas + properties
+ * /api/schemas/fetch   @param String url @return Object headers and html
+ *
+ */
+```
+
 ## Schema.org csv files
 
 Run the cli command `./cp schemaorgapi/download` to download the latest schema csv files. They are stored in `/path/to/cockpit/storage/uploads/schemas`.

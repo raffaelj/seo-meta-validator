@@ -21,7 +21,7 @@ Object.assign(App, MetaValidatorCore, {
     // use hard coded api url while developing (also to not break bookmarklet usage)
     schemaOrgApiUrl: 'http://localhost/seo-meta-validator/ui/api',
 
-    requestProxy: 'http://localhost/seo-meta-validator/ui/api/fetch',
+    requestProxy: 'http://localhost/seo-meta-validator/ui/api/schemas/fetch',
 
     HTMLParser: HTMLParser,
     validator:  validator,
@@ -70,7 +70,7 @@ Object.assign(App, MetaValidatorCore, {
 
         var $this = this;
 
-        var url = this.schemaOrgApiUrl + '/all';
+        var url = this.schemaOrgApiUrl + '/schemas/subset';
 
         if (localStorage.hasOwnProperty('schemaOrgSchemas') && localStorage.hasOwnProperty('schemaOrgProperties')) {
 
