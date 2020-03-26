@@ -140,7 +140,7 @@
 
         <a class="badge uk-text-warning" href="{ url(item) }" target="{ external ? '_blank' : '_self' }" if="{ pending }" each="{ item in pending }" title="{ App.i18n.get('Pending') }" data-uk-tooltip data-item="{ item }">{ item }</a>
 
-        <div class="inherited" if="{ inherited }" each="{ inheritedItem, idy in inherited }">
+        <div class="inherited" if="{ inherited && inheritedItem.length }" each="{ inheritedItem, idy in inherited }">
             <strong>{ App.i18n.get('from') + ' ' + idy }</strong>
             <a class="badge" href="{ url(item) }" target="{ external ? '_blank' : '_self' }" each="{ item in inheritedItem }" data-item="{ item }">{ item }</a>
         </div>
@@ -166,8 +166,8 @@
                 : ( this.inherited && Object.keys(this.inherited)[0] ? this.inherited[Object.keys(this.inherited)[0]][0] : '' ) );
 
         // type check has false positive for `http...`, but it is irrelevant for these items
-        this.type = propToCheck.match(/^[a-z]/) ? 'property'
-                    : (propToCheck.match(/^[A-Z]/) ? 'type' : null);
+        this.type = propToCheck && propToCheck.match(/^[a-z]/) ? 'property'
+                    : (propToCheck && propToCheck.match(/^[A-Z]/) ? 'type' : null);
 
         if (propToCheck && propToCheck.match(/^http/)) {
             this.external = true;
