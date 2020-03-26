@@ -46,7 +46,7 @@ class RestApi extends \LimeExtra\Controller {
 
             unset ($entry['_modified'], $entry['_created'], $entry['_id']);
 
-            $schemas[$entry['id']] = $entry;
+            $schemas[$entry['label']] = $entry;
 
         }
 
@@ -64,7 +64,7 @@ class RestApi extends \LimeExtra\Controller {
 
             unset ($entry['_modified'], $entry['_created'], $entry['_id']);
 
-            $schemas[$entry['id']] = $entry;
+            $schemas[$entry['label']] = $entry;
 
         }
 

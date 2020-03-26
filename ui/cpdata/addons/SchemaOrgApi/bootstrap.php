@@ -34,11 +34,12 @@ $this->module('schemaorgapi')->extend([
 
                 foreach($headers as $k => $field) {
 
-                    if ($k == 'id') {
-                        $entry[$field] = str_replace('http://schema.org/', '', $data[$k]);
-                    }
+                    // if ($k == 'id') {
+                        // $entry[$field] = str_replace('http://schema.org/', '', $data[$k]);
+                    // }
 
-                    elseif (in_array($field, ['label', 'comment'])) {
+                    // elseif (in_array($field, ['label', 'comment'])) {
+                    if (in_array($field, ['id', 'label', 'comment'])) {
                         $entry[$field] = $data[$k];
                     }
 
@@ -122,6 +123,7 @@ $this->module('schemaorgapi')->extend([
     'downloadSchemas' => function() {
 
         $uploadPath = $this->app->path('#uploads:schemas');
+
         if (!$uploadPath) {
             $this('fs')->mkdir('#uploads:schemas');
         }
