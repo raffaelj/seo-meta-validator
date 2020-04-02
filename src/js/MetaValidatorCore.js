@@ -210,7 +210,7 @@ module.exports = {
 
                 if (this.schemaOrgProperties[test.property].domainIncludes.includes(test.schema)) {
 
-                    if (this.schemaOrgProperties[test.property].pending) {
+                    if (this.schemaOrgProperties[test.property].ext && this.schemaOrgProperties[test.property].ext == 'pending') {
                         isPropertyPending = true;
                     }
 
