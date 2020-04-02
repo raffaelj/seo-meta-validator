@@ -22,24 +22,22 @@ All api endpoints are public! I'll change that later...
 /**
  * api shortcuts - If you want to use filters, you have to use the collections api
  *
- * /api/schemas/schema/schemaName         @return Object  single schema
- * /api/schemas/property/propertyName     @return Object  single property
+ * /api/schemas/schema/schemaName         @return Object  single schema or property
  * /api/schemas/schemas                   @return Object  all schemas
+ * /api/schemas/schemas/1                 @return Object  subset of all schemas
  * /api/schemas/properties                @return Object  all properties
+ * /api/schemas/properties/1              @return Object  subset of all properties
  * /api/schemas/all                       @return Object  schemas + properties
  * /api/schemas/subset                    @return Object  subset of schemas + properties
- * /api/schemas/fetch   @param String url @return Object headers and html
+ * /api/schemas/fetch   @param String url @return Object  headers and html
  *
  */
 ```
 
 ## Schema.org csv files
 
-Run the cli command `./cp schemaorgapi/download` to download the latest schema csv files. They are stored in `/path/to/cockpit/storage/uploads/schemas`.
+Run the cli command `./cp schemaorgapi/download` to download the latest schema file. It is then stored in `/path/to/cockpit/storage/uploads/schemas`.
 
-The CSV files are downloaded from https://github.com/schemaorg/schemaorg/tree/master/data/releases/7.0, [Apache 2.0 licensed](https://github.com/schemaorg/schemaorg/blob/master/LICENSE)
+The schema file is downloaded from https://github.com/schemaorg/schemaorg/tree/master/data/releases/7.01, [Apache 2.0 licensed](https://github.com/schemaorg/schemaorg/blob/master/LICENSE)
 
-* [schema-types.csv](https://raw.githubusercontent.com/schemaorg/schemaorg/master/data/releases/7.0/schema-types.csv)
-* [schema-properties](https://raw.githubusercontent.com/schemaorg/schemaorg/master/data/releases/7.0/schema-properties.csv)
-* [ext-pending-types.csv](https://raw.githubusercontent.com/schemaorg/schemaorg/master/data/releases/7.0/ext-pending-types.csv)
-* [ext-pending-properties.csv](https://raw.githubusercontent.com/schemaorg/schemaorg/master/data/releases/7.0/ext-pending-properties.csv)
+[all-layers.jsonld](https://raw.githubusercontent.com/schemaorg/schemaorg/master/data/releases/7.01/all-layers.jsonld)

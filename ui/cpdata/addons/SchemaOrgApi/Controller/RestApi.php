@@ -8,49 +8,57 @@ class RestApi extends \LimeExtra\Controller {
 
         if (empty($schema)) return ['error' => 'Schema not specified'];
 
-        $entry = $this->module('collections')->findOne('schema_types', ['id' => $schema]);
+        $collection = 'all_layers';
 
-        if (!$entry) return ['error' => 'Schema not found'];
+        $_entry = $this->module('collections')->findOne($collection, ['label' => $schema]);
 
-        // remove cockpit specific fields from output
-        unset ($entry['_modified'], $entry['_created'], $entry['_id']);
+        if (!$_entry) return ['error' => 'Schema not found'];
 
-        return $entry;
+        $entry = [];
 
-    }
-
-    public function property($schema = '') {
-
-        if (empty($schema)) return ['error' => 'Schema not specified'];
-
-        $entry = $this->module('collections')->findOne('schema_properties', ['id' => $schema]);
-
-        if (!$entry) return ['error' => 'Schema not found'];
-
-        // remove cockpit specific fields from output
-        unset ($entry['_modified'], $entry['_created'], $entry['_id']);
+        // return only type/property specific keys
+        $keys = $this->module('schemaorgapi')->schemaKeys[$_entry['type']];
+        foreach ($keys as $k) {
+            if (isset($_entry[$k])) $entry[$k] = $_entry[$k];
+        }
 
         return $entry;
 
     }
 
-    public function schemas($subset = false) {
+    public function types($subset = false) {
+
+        $collection = 'all_layers';
 
         $schemas = [];
         $options = [
+            'filter' => [
+                'type' => 'type',
+            ],
             'sort' => [
                 'label' => 1
             ],
         ];
 
-        if ($subset) {
-            $options['fields'] = [
-                'id' => false,
-                'comment' => false,
-            ];
+        $keys = $this->module('schemaorgapi')->schemaKeys['type'];
+        foreach ($keys as $k) {
+            $options['fields'][$k] = true;
         }
 
-        $_schemas = $this->module('collections')->find('schema_types', $options);
+        if ($subset) {
+            $options['fields'] = \array_replace($options['fields'], [
+                'id' => false,
+                'comment' => false,
+                'type' => false,
+                'equivalentClass' => false,
+                'supersedes' => false,
+                'supersededBy' => false,
+                'isPartOf' => false,
+                'source' => false,
+            ]);
+        }
+
+        $_schemas = $this->module('collections')->find($collection, $options);
 
         foreach ($_schemas as &$entry) {
 
@@ -59,11 +67,14 @@ class RestApi extends \LimeExtra\Controller {
             // remove cockpit specific fields from output
             unset ($entry['_modified'], $entry['_created'], $entry['_id']);
 
+            // replace subTypeOf/subTypes until I'll have changed that in the js validator
+            $entry['subTypeOf'] = $entry['subClassOf'];
+            $entry['subTypes'] = $entry['subClasses'];
+            unset ($entry['subClassOf'], $entry['subClasses']);
+
             if ($subset) {
-                if (!$entry['pending']) {
-                    unset($entry['pending']);
-                }
                 unset($entry['label']);
+                if (empty($entry['ext'])) unset($entry['ext']);
             }
 
             $schemas[$label] = $entry;
@@ -76,21 +87,38 @@ class RestApi extends \LimeExtra\Controller {
 
     public function properties($subset = false) {
 
+        $collection = 'all_layers';
+
         $schemas = [];
         $options = [
+            'filter' => [
+                'type' => 'property',
+            ],
             'sort' => [
                 'label' => 1
             ],
         ];
 
-        if ($subset) {
-            $options['fields'] = [
-                'id' => false,
-                'comment' => false,
-            ];
+        $keys = $this->module('schemaorgapi')->schemaKeys['property'];
+        foreach ($keys as $k) {
+            $options['fields'][$k] = true;
         }
 
-        $_schemas = $this->module('collections')->find('schema_properties', $options);
+        if ($subset) {
+            $options['fields'] = \array_replace($options['fields'], [
+                'id' => false,
+                'comment' => false,
+                'type' => false,
+                'equivalentProperty' => false,
+                'inverseOf' => false,
+                'supersedes' => false,
+                'supersededBy' => false,
+                'isPartOf' => false,
+                'source' => false,
+            ]);
+        }
+
+        $_schemas = $this->module('collections')->find($collection, $options);
 
         foreach ($_schemas as &$entry) {
 
@@ -100,10 +128,8 @@ class RestApi extends \LimeExtra\Controller {
             unset ($entry['_modified'], $entry['_created'], $entry['_id']);
 
             if ($subset) {
-                if (!$entry['pending']) {
-                    unset($entry['pending']);
-                }
                 unset($entry['label']);
+                if (empty($entry['ext'])) unset($entry['ext']);
             }
 
             $schemas[$label] = $entry;
@@ -126,7 +152,7 @@ class RestApi extends \LimeExtra\Controller {
     public function subset() {
 
         return [
-            'schemas'    => $this->schemas(true),
+            'schemas'    => $this->types(true),
             'properties' => $this->properties(true)
         ];
 

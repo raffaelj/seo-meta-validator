@@ -48,23 +48,12 @@ Now you have to setup the schema api.
 Navigate to `path/to/seo-meta-validator/ui`
 
 ```bash
-# download latest csv files from schema.org github repo
-# they will be stored in /ui/cpdata/storage/uploads/schemas
+# download latest all-layers.jsonld file from schema.org github repo
+# it will be stored in /ui/cpdata/storage/uploads/schemas
 ./cp schemaorgapi/download
 
-# import csv files
+# import jsonld file
 ./cp schemaorgapi/import
-```
-
-If you want to use the linked collections (nice for exploring the schemas), you have to do some more steps:
-
-```bash
-# copy the collections
-./cp schemaorgapi/copy --collection schema_types
-./cp schemaorgapi/copy --collection schema_properties
-
-# convert both collections, so they have linked entries
-./cp schemaorgapi/convert --types --properties
 ```
 
 ### browser bookmarklet
@@ -106,7 +95,7 @@ Not fully implemented yet. Run `node bin/cli.js --url https://example.com` to se
   * [x] length checks for twitter:title, twitter:description
   * [ ] ...
 * [ ] validate schemas
-  * [ ] allowed properties (fails for strings that should be parsed as object, e. g. `"author": "A. Smith"` should be parsed as `"author": {"@type":"Thing","name":"A. Smith"}`)
+  * [x] allowed properties (fails for strings that should be parsed as object, e. g. `"author": "A. Smith"` should be parsed as `"author": {"@type":"Thing","name":"A. Smith"}`)
   * [ ] invalid properties (data type validation) - partially implemented
   * [ ] ...
 * [ ] microdata/rdfa parser schould match spec
@@ -150,7 +139,9 @@ See [LICENSE](LICENSE) for more information.
 * A lot of the code is copied and modified from [structured-data-testing-tool][1], (c) Iain Collins, ISC License.
 * The parsers are rewritten variants from [web-auto-extractor][2], (c) Dayan Adeeb, MIT License.
 * Some internal js helpers are from [Cockpit CMS (App.js)][3], (c) Artur Heinze, MIT License
-* The built script for browser usage contains the browserified [jmespath][6], (c) James Saryerwinnie, [Apache 2.0 License][7]
+* The built script for browser usage contains the browserified/minified
+  * [jmespath][6], (c) James Saryerwinnie, [Apache 2.0 License][7]
+  * [validator.js][8], (c) Chris O'Hara, [MIT License][9]
 
 [1]: https://github.com/glitchdigital/structured-data-testing-tool
 [2]: https://github.com/indix/web-auto-extractor
@@ -158,4 +149,6 @@ See [LICENSE](LICENSE) for more information.
 [4]: https://www.npmjs.com/package/structured-data-testing-tool
 [5]: https://www.npmjs.com/package/web-auto-extractor
 [6]: https://github.com/jmespath/jmespath.js
-[7]: https://raw.githubusercontent.com/jmespath/jmespath.js/master/LICENSE
+[7]: https://github.com/jmespath/jmespath.js/blob/master/LICENSE
+[8]: https://github.com/validatorjs/validator.js
+[9]: https://github.com/validatorjs/validator.js/blob/master/LICENSE
