@@ -1,8 +1,8 @@
 <?php
  return array (
-  'name' => 'schema_properties',
-  'label' => 'Properties',
-  '_id' => 'schema_properties5e6a9dfda04f4',
+  'name' => 'all_layers',
+  'label' => '',
+  '_id' => 'all_layers5e7f6f125898f',
   'fields' => 
   array (
     0 => 
@@ -17,7 +17,7 @@
       'options' => 
       array (
       ),
-      'width' => '1-2',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
@@ -35,13 +35,31 @@
       'options' => 
       array (
       ),
-      'width' => '1-2',
+      'width' => '1-3',
       'lst' => true,
       'acl' => 
       array (
       ),
     ),
     2 => 
+    array (
+      'name' => 'type',
+      'label' => '',
+      'type' => 'text',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-3',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    3 => 
     array (
       'name' => 'comment',
       'label' => '',
@@ -60,27 +78,9 @@
       array (
       ),
     ),
-    3 => 
-    array (
-      'name' => 'subPropertyOf',
-      'label' => '',
-      'type' => 'tags',
-      'default' => '',
-      'info' => '',
-      'group' => '',
-      'localize' => false,
-      'options' => 
-      array (
-      ),
-      'width' => '1-1',
-      'lst' => true,
-      'acl' => 
-      array (
-      ),
-    ),
     4 => 
     array (
-      'name' => 'equivalentProperty',
+      'name' => 'subClassOf',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -98,7 +98,7 @@
     ),
     5 => 
     array (
-      'name' => 'subproperties',
+      'name' => 'enumerationtype',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -116,7 +116,7 @@
     ),
     6 => 
     array (
-      'name' => 'domainIncludes',
+      'name' => 'equivalentClass',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -134,7 +134,7 @@
     ),
     7 => 
     array (
-      'name' => 'rangeIncludes',
+      'name' => 'properties',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -152,7 +152,7 @@
     ),
     8 => 
     array (
-      'name' => 'inverseOf',
+      'name' => 'subClasses',
       'label' => '',
       'type' => 'tags',
       'default' => '',
@@ -224,9 +224,171 @@
     ),
     12 => 
     array (
-      'name' => 'pending',
+      'name' => 'subPropertyOf',
       'label' => '',
-      'type' => 'boolean',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    13 => 
+    array (
+      'name' => 'equivalentProperty',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    14 => 
+    array (
+      'name' => 'subproperties',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    15 => 
+    array (
+      'name' => 'domainIncludes',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    16 => 
+    array (
+      'name' => 'rangeIncludes',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    17 => 
+    array (
+      'name' => 'inverseOf',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    18 => 
+    array (
+      'name' => 'supersedes',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    19 => 
+    array (
+      'name' => 'supersededBy',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    20 => 
+    array (
+      'name' => 'source',
+      'label' => '',
+      'type' => 'tags',
+      'default' => '',
+      'info' => '',
+      'group' => '',
+      'localize' => false,
+      'options' => 
+      array (
+      ),
+      'width' => '1-1',
+      'lst' => true,
+      'acl' => 
+      array (
+      ),
+    ),
+    21 => 
+    array (
+      'name' => 'ext',
+      'label' => '',
+      'type' => 'text',
       'default' => '',
       'info' => '',
       'group' => '',
@@ -243,19 +405,15 @@
   ),
   'sortable' => false,
   'in_menu' => false,
-  '_created' => 1584045565,
-  '_modified' => 1584568463,
-  'color' => '#A0D468',
+  '_created' => 1585409810,
+  '_modified' => 1585740540,
+  'color' => '#D8334A',
   'acl' => 
   array (
-    'public' => 
-    array (
-      'entries_view' => true,
-    ),
   ),
   'sort' => 
   array (
-    'column' => 'id',
+    'column' => 'label',
     'dir' => 1,
   ),
   'rules' => 
@@ -277,4 +435,5 @@
       'enabled' => false,
     ),
   ),
+  'icon' => 'api.svg',
 );
