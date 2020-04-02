@@ -331,7 +331,7 @@ module.exports = {
         // If test is a Regular Expression…
         if (value && test.expect instanceof RegExp) {
 
-            if ( (Array.isArray(value) && !value.some(v => { return v.match(test.expect); }))
+            if ( (Array.isArray(value) && !value.some(v => { return v ? v.match(test.expect) : false; }))
               || (typeof value == 'string' && !value.match(test.expect)) ) {
 
                 return {
