@@ -1,5 +1,4 @@
 
-
 <div riot-view>
 
     <div>
@@ -24,7 +23,7 @@
 
     <div class="uk-container-center uk-width-xlarge-3-4" if="{ !loading }">
 
-        <schema-card entry="{ entry }" type="{ type }"></schema-card>
+        <schema-card entry="{ entry }"></schema-card>
 
     </div>
 
@@ -32,10 +31,10 @@
 
     <script type="view/script">
 
-        var $this = this;
+        var $this = this, cache = {};
 
-        this.type = '{{ $type }}';
         this.entry = {{ json_encode($entry) }};
+        this.type = this.entry.type;
         this.loading = true;
 
         this.on('mount', function(){
@@ -49,36 +48,54 @@
 
         initState() {
 
-            var parts = window.location.pathname.split('/').slice(-2);
+            var name = window.location.pathname.split('/').slice(-1)[0];
 
-            if (this.type && this.entry && parts[0] == this.type && parts[1] == this.entry.label) {
+            if (name == this.entry.label) {
+                cache[this.entry.label] = this.entry;
                 this.loading = false;
                 this.update();
             }
 
             else {
-                this.load(...parts);
+                this.load(name);
             }
 
         }
 
-        load(type, name) {
+        load(name) {
 
-            if (!type || !name) return;
+            if (!name) return;
 
             this.loading = true;
+            
+            if (cache[name]) {
 
-            App.request('/schemas/' + type + '/' + name).then(function(data) {
+                this.type = cache[name].type;
+                this.entry = cache[name];
+                this.update();
 
-                if (data && data.type) {
+                window.history.pushState(null, null, App.route('/schemas/schema/' + name));
+                document.title = `Schemas » ${App.Utils.ucfirst(this.type)} » ${name}`;
+                this.loading = false;
+                this.update();
 
-                    $this.type  = data.type;
+                return;
+            }
+
+            App.request('/schemas/schema/' + name).then(function(data) {
+
+                if (data && data.entry) {
+
+                    $this.type  = data.entry.type;
                     $this.entry = data.entry;
-                    $this.pendingProperties = data.pendingProperties || null;
+
+                    cache[data.entry.label] = data.entry;
 
                     $this.update();
 
-                    window.history.pushState(null, null, App.route('/schemas/' + type + '/' + name));
+                    window.history.pushState(null, null, App.route('/schemas/schema/' + name));
+
+                    document.title = `Schemas » ${App.Utils.ucfirst($this.type)} » ${name}`;
 
                     $this.loading = false;
 
@@ -89,7 +106,8 @@
                 else {
                     $this.loading = false;
                     App.ui.notify('unexpected failure, see console output for more information', 'danger');
-                    console.log('unexpected failure', type, name, data); // to do...
+
+                    console.log('unexpected failure', name, data); // to do...
                 }
 
             }).catch(function(e) {

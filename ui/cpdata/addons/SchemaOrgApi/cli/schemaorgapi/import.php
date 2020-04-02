@@ -2,36 +2,12 @@
 
 if (!COCKPIT_CLI) return;
 
-$return = $app->module('schemaorgapi')->importCSV('schema_types', 'schema-types.csv');
+$time = time();
 
-if (isset($return['message'])) {
-    CLI::writeln($return['message'], true);
-} else if (isset($return['error'])) {
-    CLI::writeln($return['error'], false);
-}
+$fileName   = 'all-layers.jsonld';
 
-$return = $app->module('schemaorgapi')->importCSV('schema_types', 'ext-pending-types.csv', true);
+$return = $app->module('schemaorgapi')->import($fileName);
 
-if (isset($return['message'])) {
-    CLI::writeln($return['message'], true);
-} else if (isset($return['error'])) {
-    CLI::writeln($return['error'], false);
-}
+$seconds = time() - $time;
 
-$return = $app->module('schemaorgapi')->importCSV('schema_properties', 'schema-properties.csv');
-
-if (isset($return['message'])) {
-    CLI::writeln($return['message'], true);
-} else if (isset($return['error'])) {
-    CLI::writeln($return['error'], false);
-}
-
-$return = $app->module('schemaorgapi')->importCSV('schema_properties', 'ext-pending-properties.csv', true);
-
-if (isset($return['message'])) {
-    CLI::writeln($return['message'], true);
-} else if (isset($return['error'])) {
-    CLI::writeln($return['error'], false);
-}
-
-CLI::writeln('Done.');
+CLI::writeln("Done importing in $seconds seconds.", true);

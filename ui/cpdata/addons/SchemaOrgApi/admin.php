@@ -15,28 +15,20 @@ $this->on('admin.init', function() {
     // listen to app search
     $this->on('cockpit.search', function($search, $list) {
 
+        $collection = 'all_layers';
+
         $options = [
             'filter' => [
                 'label' => ['$regex' => $search]
             ]
         ];
 
-        foreach ($this->module('collections')->find('schema_types', $options) as $entry) {
+        foreach ($this->module('collections')->find($collection, $options) as $entry) {
 
             $list[] = [
-                'icon'  => 'angle-right',
+                'icon'  => 'angle-' . ($entry['type'] == 'type' ? 'right' : 'down'),
                 'title' => $entry['label'],
-                'url'   => $this->routeUrl('/schemas/type/'.$entry['label'])
-            ];
-
-        }
-
-        foreach ($this->module('collections')->find('schema_properties', $options) as $entry) {
-
-            $list[] = [
-                'icon'  => 'angle-down',
-                'title' => $entry['label'],
-                'url'   => $this->routeUrl('/schemas/property/'.$entry['label'])
+                'url'   => $this->routeUrl('/schemas/schema/'.$entry['label'])
             ];
 
         }

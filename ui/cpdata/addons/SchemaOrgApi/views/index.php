@@ -33,7 +33,7 @@
 
                 <ul class="uk-list">
                     <li each="{ schema in schemas }">
-                        <a href="@route('/schemas/type/'){schema}">{ schema }</a>
+                        <a href="@route('/schemas/schema/'){schema}">{ schema }</a>
                     </li>
                 </ul>
 
